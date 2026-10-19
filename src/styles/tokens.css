@@ -1,0 +1,197 @@
+/* SDG Labs — generated from src/styles/tokens.json by scripts/build-tokens.mjs. Do not edit. */
+
+:root {
+  --grafite: #353535;
+  --petroleo: #3C6E71;
+  --indigo: #284B63;
+  --nevoa: #D9D9D9;
+  --branco: #FFFFFF;
+  --surface: var(--branco);
+  --surface-alt: #F2F2F2;
+  --surface-inverse: var(--grafite);
+  --ink: var(--grafite);
+  --ink-muted: #5A5A5A;
+  --ink-inverse: var(--branco);
+  --accent: var(--petroleo);
+  --on-accent: var(--branco);
+  --brand: var(--indigo);
+  --on-brand: var(--branco);
+  --border: var(--nevoa);
+  --border-strong: #767676;
+  --focus: var(--accent);
+  --stage-done: var(--accent);
+  --stage-current: var(--accent);
+  --stage-todo: #9A9A9A;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-24: 96px;
+  --radius-none: 0px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-full: 999px;
+  --shadow-pixel: 4px 4px 0 0 #353535;
+  --font-display: var(--nf-display, "Space Grotesk"), system-ui, sans-serif;
+  --font-sans: var(--nf-sans, "IBM Plex Sans"), system-ui, sans-serif;
+  --font-pixel: var(--nf-pixel, "Silkscreen"), ui-monospace, monospace;
+  --font-mono: var(--nf-mono, "IBM Plex Mono"), ui-monospace, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --surface: var(--grafite);
+    --surface-alt: #2A2A2A;
+    --surface-inverse: var(--branco);
+    --ink: var(--branco);
+    --ink-muted: var(--nevoa);
+    --ink-inverse: var(--grafite);
+    --accent: #6FA8AC;
+    --on-accent: #1E1E1E;
+    --brand: #8FB3CC;
+    --on-brand: #1E1E1E;
+    --border: #4A4A4A;
+    --border-strong: #8C8C8C;
+    --stage-todo: #7A7A7A;
+    --shadow-pixel: 4px 4px 0 0 #000000;
+  }
+}
+
+:root[data-theme="dark"] {
+  --surface: var(--grafite);
+  --surface-alt: #2A2A2A;
+  --surface-inverse: var(--branco);
+  --ink: var(--branco);
+  --ink-muted: var(--nevoa);
+  --ink-inverse: var(--grafite);
+  --accent: #6FA8AC;
+  --on-accent: #1E1E1E;
+  --brand: #8FB3CC;
+  --on-brand: #1E1E1E;
+  --border: #4A4A4A;
+  --border-strong: #8C8C8C;
+  --stage-todo: #7A7A7A;
+  --shadow-pixel: 4px 4px 0 0 #000000;
+}
+
+/* Tailwind theme: only the brand's colors exist (the default palette is turned off). */
+@theme inline {
+  --color-*: initial;
+  --color-grafite: var(--grafite);
+  --color-petroleo: var(--petroleo);
+  --color-indigo: var(--indigo);
+  --color-nevoa: var(--nevoa);
+  --color-branco: var(--branco);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-surface-inverse: var(--surface-inverse);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-inverse: var(--ink-inverse);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-brand: var(--brand);
+  --color-on-brand: var(--on-brand);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-focus: var(--focus);
+  --color-stage-done: var(--stage-done);
+  --color-stage-current: var(--stage-current);
+  --color-stage-todo: var(--stage-todo);
+  --radius-none: 0px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-full: 999px;
+  --font-display: var(--nf-display, "Space Grotesk"), system-ui, sans-serif;
+  --font-sans: var(--nf-sans, "IBM Plex Sans"), system-ui, sans-serif;
+  --font-pixel: var(--nf-pixel, "Silkscreen"), ui-monospace, monospace;
+  --font-mono: var(--nf-mono, "IBM Plex Mono"), ui-monospace, monospace;
+}
+
+@utility shadow-pixel {
+  box-shadow: var(--shadow-pixel);
+}
+
+@utility type-display {
+  font-family: var(--font-display);
+  font-size: 56px;
+  line-height: 60px;
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+
+@utility type-h1 {
+  font-family: var(--font-display);
+  font-size: 40px;
+  line-height: 48px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+@utility type-h2 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 600;
+}
+
+@utility type-h3 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+}
+
+@utility type-lead {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  line-height: 28px;
+  font-weight: 400;
+}
+
+@utility type-body {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+@utility type-small {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+}
+
+@utility type-label {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+@utility type-eyebrow {
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+  letter-spacing: 1px;
+}
+
+@utility type-pixel-tag {
+  font-family: var(--font-pixel);
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+@utility type-code {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+}
+

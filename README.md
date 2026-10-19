@@ -1,0 +1,82 @@
+# SDG Site
+
+O site da SDG Labs, num único app Next.js com três áreas:
+
+- **Site público**: landing page animada, serviços, softwares próprios, portfólio e contato.
+- **Área do cliente** (`/painel`): quem contratou acompanha o projeto em 5 etapas, com a etapa
+  atual pulsando, e um feed de prints, vídeos e notas em tempo real.
+- **Painel admin** (`/admin`): os sócios operam clientes, projetos, etapas, portfólio e leads.
+
+Stack: Next.js 16 (App Router), TypeScript, Tailwind CSS v4, Supabase, deploy na Vercel. O plano
+completo, com fases e prompts, está em `docs/arquitetura.md`. O contexto para agentes de IA está em
+[CLAUDE.md](CLAUDE.md).
+
+## Como rodar
+
+Requisitos: Node 24 (LTS) e pnpm 11 (`corepack enable` instala a versão do `packageManager`).
+
+```bash
+pnpm install
+cp .env.example .env.local   # preencha quando o Supabase e o Resend estiverem configurados
+pnpm dev                     # http://localhost:3000
+```
+
+## Scripts
+
+| Script                              | O que faz                                                             |
+| ----------------------------------- | --------------------------------------------------------------------- |
+| `pnpm dev`                          | gera os tokens e sobe o servidor de desenvolvimento                   |
+| `pnpm build` / `pnpm start`         | gera os tokens e faz o build de produção / serve o build              |
+| `pnpm lint`                         | ESLint                                                                |
+| `pnpm typecheck`                    | gera os tipos de rota do Next (`next typegen`) e roda o `tsc`         |
+| `pnpm format` / `pnpm format:check` | Prettier (com ordenação das classes do Tailwind)                      |
+| `pnpm test`                         | testes unitários (Vitest)                                             |
+| `pnpm test:e2e`                     | testes de ponta a ponta (Playwright, no Chrome instalado na máquina)  |
+| `pnpm tokens`                       | regenera `src/styles/tokens.css` a partir de `src/styles/tokens.json` |
+
+Hooks do Git (Husky): o `pre-commit` roda ESLint e Prettier nos arquivos alterados
+(lint-staged), e o `commit-msg` confere a mensagem no padrão Conventional Commits (commitlint).
+
+## Variáveis de ambiente
+
+Validadas com Zod em `src/lib/env.ts`. Copie `.env.example` para `.env.local`; nenhum `.env*`
+além do exemplo vai para o Git.
+
+| Variável                        | Onde é usada                                             |
+| ------------------------------- | -------------------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL`          | URL pública do site (links absolutos, Open Graph)        |
+| `NEXT_PUBLIC_SUPABASE_URL`      | URL do projeto Supabase                                  |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | chave pública do Supabase (protegida por RLS)            |
+| `SUPABASE_SERVICE_ROLE_KEY`     | chave de serviço do Supabase, **só no servidor**         |
+| `RESEND_API_KEY`                | envio de e-mails transacionais                           |
+| `EMAIL_FROM`                    | remetente dos e-mails, ex.: `SDG Labs <contato@dominio>` |
+
+## Design system
+
+A marca vem do design system SDG Labs, e o README dele é a referência de voz, cores, tipografia e
+logo. No repositório:
+
+| Arquivo                     | Origem                                                                       |
+| --------------------------- | ---------------------------------------------------------------------------- |
+| `src/styles/tokens.json`    | cópia do `tokens.json` do design system                                      |
+| `src/styles/tokens.css`     | gerado por `pnpm tokens`: variáveis CSS, tema do Tailwind e classes `type-*` |
+| `src/lib/brand/sdg-logo.js` | motor do logo animado, copiado sem alterações                                |
+| `public/brand/*.svg`        | logos (vertical, horizontal e ícone, versões claro e escuro)                 |
+
+Para mudar uma cor, um raio ou um estilo de texto, atualize a cópia do `tokens.json` e rode
+`pnpm tokens`. A paleta padrão do Tailwind está desligada: só existem as cores da marca
+(`bg-surface`, `text-ink`, `bg-accent`…).
+
+## Fluxo de branches e commits
+
+- `main` é produção e é protegida: nada entra sem PR com CI verde e a aprovação do outro sócio.
+- Branches: `feat/<assunto>`, `fix/<assunto>`, `chore/<assunto>`.
+- Commits em inglês, no padrão Conventional Commits: `feat: add stage tracker`,
+  `fix: signed url expiry`.
+- Um assunto por PR, com print ou vídeo quando mexer em tela. A Vercel gera um preview por PR.
+- Tag `v0.x` a cada fase entregue; `v1.0.0` no lançamento.
+
+## Antes de publicar
+
+- Trocar o e-mail de contato provisório em `src/lib/site.ts`.
+- Revisar os textos das seções em `src/components/marketing/`.

@@ -1,0 +1,3 @@
+allowBuilds:
+  # Native binding comes from optionalDependencies; the postinstall is only a download fallback.
+  unrs-resolver: false
