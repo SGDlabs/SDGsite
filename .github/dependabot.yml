@@ -11,6 +11,12 @@ updates:
       prefix: chore
       include: scope
     open-pull-requests-limit: 10
+    ignore:
+      # Same version as the approved landing prototype: newer releases change how scrolling feels.
+      - dependency-name: lenis
+      # The types follow the Node runtime (24 LTS), not the newest Node release.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /
