@@ -1,12 +1,14 @@
-const LINKS = [
-  { href: "#servicos", label: "Serviços" },
-  { href: "#processo", label: "Processo" },
-  { href: "#painel", label: "Painel do cliente" },
-  { href: "#portfolio", label: "Portfólio" },
-  { href: "#contato", label: "Contato" },
-];
+import Link from "next/link";
 
-export function SiteFooter() {
+export function SiteFooter({ onHome = false }: { onHome?: boolean }) {
+  const to = (hash: string) => (onHome ? hash : `/${hash}`);
+  const links = [
+    { href: to("#servicos"), label: "Serviços" },
+    { href: to("#processo"), label: "Processo" },
+    { href: to("#painel"), label: "Painel do cliente" },
+    { href: onHome ? "#portfolio" : "/portfolio", label: "Portfólio" },
+    { href: to("#contato"), label: "Contato" },
+  ];
   return (
     <footer className="foot">
       <div className="wrap">
@@ -15,11 +17,17 @@ export function SiteFooter() {
         <div className="foot-row">
           <p>A fórmula do seu software.</p>
           <nav aria-label="Rodapé">
-            {LINKS.map((link) => (
-              <a key={link.href} href={link.href}>
-                {link.label}
-              </a>
-            ))}
+            {links.map((link) =>
+              link.href.startsWith("#") ? (
+                <a key={link.href} href={link.href}>
+                  {link.label}
+                </a>
+              ) : (
+                <Link key={link.href} href={link.href}>
+                  {link.label}
+                </Link>
+              ),
+            )}
           </nav>
           <p>© 2026 SDG Labs</p>
         </div>

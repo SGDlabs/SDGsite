@@ -89,7 +89,10 @@ de actions, só com versões publicadas há pelo menos duas semanas.
 A landing ainda tem campos entre colchetes, vindos do protótipo, em `src/components/marketing/`:
 
 - `contact.tsx`: e-mail e WhatsApp da SDG Labs.
-- `portfolio.tsx`: nome e descrição de cada projeto.
+- `src/content/portfolio.ts`: os casos do portfólio (nome, resumo, texto, stack, link). As
+  imagens ficam em `public/portfolio/<slug>/` (`cover.png`, `galeria-1.png`…); as atuais são as
+  capas em pixel art do protótipo, marcadas com `pixelArt: true`. Tire essa marca ao trocar por
+  prints reais, para o Next otimizar as imagens.
 - `about.tsx`: uma frase sobre cada sócio.
 - `faq.tsx`: a política de suporte depois da entrega.
 
