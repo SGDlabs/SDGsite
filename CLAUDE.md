@@ -174,6 +174,16 @@ sombra acima valem para as outras áreas, não para a landing. Ao mexer nela, fi
 - `/design/area-do-cliente` mostra as telas com dados de exemplo (`sample.ts`), sem banco.
 - Simular o admin avançando a etapa: `supabase/snippets/avancar-etapa.sql` (ver README).
 
+## Painel admin
+
+- Layout com a barra lateral (`components/admin/admin-nav.tsx`); as páginas não têm `<main>` nem
+  `Container` próprios, o layout já dá os dois. Título com `PageHeader`, blocos com `Panel`.
+- Leituras em `src/server/queries/admin.ts`, com a sessão do admin (RLS). A service role só entra
+  para o que está no Auth (e-mail e último acesso dos usuários) e para convites.
+- Página sem dados (formulário em branco) fica estática e confere o papel com
+  `<Suspense fallback={null}><AdminGuard /></Suspense>`.
+- Formulários que se repetem (convidar várias pessoas) usam `useActionForm(..., { resetOnSuccess })`.
+
 ## Estrutura de pastas
 
 ```text

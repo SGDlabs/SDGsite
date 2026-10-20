@@ -51,7 +51,7 @@ jobs:
           retention-days: 7
 
   supabase:
-    name: Supabase (database, sign-in, client area)
+    name: Supabase (database, sign-in, client area, admin)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -99,8 +99,8 @@ jobs:
       # the README's local walkthrough: sample prints, then the stage advance (after the tests)
       - run: pnpm db:seed-media
 
-      - name: Sign-in and client area against the local Supabase (e-mails through Mailpit)
-        run: pnpm test:e2e auth client-area
+      - name: Sign-in, client area and admin against the local Supabase (e-mails through Mailpit)
+        run: pnpm test:e2e auth client-area admin
 
       - name: The README's stage advance snippet works
         run: pnpm supabase db query --local -f supabase/snippets/avancar-etapa.sql

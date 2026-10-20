@@ -80,7 +80,7 @@ test.describe("with Supabase", () => {
     await page.goto("/login");
     await signIn(page, "admin@sdglabs.local");
     await expect(page).toHaveURL(/\/admin$/);
-    await expect(page.getByText("Olá, Admin SDG Labs.")).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "Visão geral" })).toBeVisible();
     await page.goto("/painel");
     await expect(page).toHaveURL(/\/painel$/);
   });
