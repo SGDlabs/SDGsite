@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { fieldClasses } from "@/components/ui/input";
 import { LEAD_STATUS_LABELS, LEAD_STATUSES, type LeadStatus } from "@/lib/lead-labels";
 import { cn } from "@/lib/utils";
@@ -18,7 +18,9 @@ export function LeadStatusSelect({
 }) {
   const [value, setValue] = useState(status);
   const [error, setError] = useState<string | null>(null);
-  const [saving, startSaving] = useTransition();
+  // plain state, not a transition: the action revalidates this page, and the pending state must
+  // end when the action answers, not when the refreshed page has finished rendering
+  const [saving, setSaving] = useState(false);
 
   return (
     <div className="flex flex-col gap-1">
@@ -27,18 +29,18 @@ export function LeadStatusSelect({
         value={value}
         disabled={saving}
         className={cn(fieldClasses, "min-h-9 py-1.5")}
-        onChange={(event) => {
+        onChange={async (event) => {
           const next = event.target.value as LeadStatus;
           const previous = value;
           setValue(next);
           setError(null);
-          startSaving(async () => {
-            const result = await updateLeadStatus({ id, status: next });
-            if (!result.ok) {
-              setValue(previous);
-              setError(result.formError ?? "Não conseguimos mudar o status.");
-            }
-          });
+          setSaving(true);
+          const result = await updateLeadStatus({ id, status: next }).catch(() => null);
+          setSaving(false);
+          if (!result?.ok) {
+            setValue(previous);
+            setError(result?.formError ?? "Não conseguimos mudar o status.");
+          }
         }}
       >
         {LEAD_STATUSES.map((option) => (

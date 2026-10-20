@@ -85,10 +85,15 @@ test("a lead from the site reaches the admin and moves along", async ({ page, is
   await expect(page.getByText("Mensagem enviada.")).toBeVisible();
 
   await signInAsAdmin(page, "/admin/leads?status=novo");
+  await expect(page.getByRole("row").filter({ hasText: email })).toBeVisible();
+
+  // without a filter, so the row stays on screen after the change
+  await page.goto("/admin/leads");
   const row = page.getByRole("row").filter({ hasText: email });
-  await expect(row).toBeVisible();
-  await row.getByRole("combobox", { name: "Status de Lead de Teste" }).selectOption("em_contato");
-  await expect(row.getByRole("combobox")).toBeEnabled();
+  const status = row.getByRole("combobox", { name: "Status de Lead de Teste" });
+  await status.selectOption("em_contato");
+  await expect(status).toBeEnabled();
+  await expect(status).toHaveValue("em_contato");
 
   await page.goto("/admin/leads?status=em_contato");
   await expect(page.getByRole("row").filter({ hasText: email })).toBeVisible();
