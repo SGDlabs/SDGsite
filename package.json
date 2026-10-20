@@ -15,7 +15,8 @@
     "tokens": "node scripts/build-tokens.mjs",
     "prepare": "husky",
     "test:db": "vitest run supabase/tests",
-    "db:types": "supabase gen types typescript --local > src/types/database.ts"
+    "db:types": "supabase gen types typescript --local > src/types/database.ts",
+    "db:seed-media": "node scripts/seed-media.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "5.9.1",

@@ -51,7 +51,7 @@ jobs:
           retention-days: 7
 
   supabase:
-    name: Supabase (database, sign-in and e-mails)
+    name: Supabase (database, sign-in, client area)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -68,10 +68,10 @@ jobs:
       # also installs the Supabase CLI (devDependency)
       - run: pnpm install --frozen-lockfile
 
-      # Postgres, Auth, the REST API, the gateway and the mailbox (Mailpit): what the tests use.
-      # Applies the migrations and the seed.
+      # Postgres, Auth, the REST API, Realtime, Storage, the gateway and the mailbox (Mailpit): what
+      # the tests use. Applies the migrations and the seed.
       - name: Start the local Supabase
-        run: pnpm supabase start -x studio,imgproxy,logflare,vector,postgres-meta,supavisor,realtime,storage-api,edge-runtime
+        run: pnpm supabase start -x studio,imgproxy,logflare,vector,postgres-meta,supavisor,edge-runtime
 
       - name: Row level security tests against Supabase's Postgres
         run: pnpm test:db
@@ -96,8 +96,14 @@ jobs:
 
       - run: pnpm build
 
-      - name: Sign-in flows against the local Supabase (e-mails through Mailpit)
-        run: pnpm test:e2e auth
+      # the README's local walkthrough: sample prints, then the stage advance (after the tests)
+      - run: pnpm db:seed-media
+
+      - name: Sign-in and client area against the local Supabase (e-mails through Mailpit)
+        run: pnpm test:e2e auth client-area
+
+      - name: The README's stage advance snippet works
+        run: pnpm supabase db query --local -f supabase/snippets/avancar-etapa.sql
 
       - name: Supabase Auth logs
         if: failure()

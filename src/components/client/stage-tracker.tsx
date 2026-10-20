@@ -13,6 +13,11 @@ interface StageTrackerProps {
   /** Dashboard-card version: dots only, titles kept for screen readers. Always horizontal. */
   compact?: boolean;
   label?: string;
+  /**
+   * Makes each stage a button that shows its details (from a Client Component). `detailsId` is
+   * the element those details render in.
+   */
+  selection?: { selected: number; onSelect: (index: number) => void; detailsId: string };
 }
 
 // Complete class names only (Tailwind can't see names built at runtime). The full tracker is
@@ -20,14 +25,16 @@ interface StageTrackerProps {
 const LAYOUT = {
   responsive: {
     list: "flex flex-col @min-[40rem]:grid @min-[40rem]:auto-cols-fr @min-[40rem]:grid-flow-col",
-    step: "gap-4 pb-6 last:pb-0 @min-[40rem]:flex-col @min-[40rem]:items-center @min-[40rem]:gap-2 @min-[40rem]:px-1 @min-[40rem]:pb-0 @min-[40rem]:text-center",
+    step: "pb-6 last:pb-0 @min-[40rem]:justify-center @min-[40rem]:px-1 @min-[40rem]:pb-0",
+    body: "gap-4 @min-[40rem]:flex-col @min-[40rem]:items-center @min-[40rem]:gap-2 @min-[40rem]:text-center",
     lineIn: "hidden @min-[40rem]:block",
     lineOut: "@min-[40rem]:hidden",
     text: "pt-0.5 @min-[40rem]:items-center @min-[40rem]:pt-0",
   },
   compact: {
     list: "grid auto-cols-fr grid-flow-col",
-    step: "flex-col items-center gap-2 px-1 text-center",
+    step: "justify-center px-1",
+    body: "flex-col items-center gap-2 text-center",
     lineIn: "block",
     lineOut: "hidden",
     text: "",
@@ -41,6 +48,7 @@ export function StageTracker({
   stages,
   compact = false,
   label = "Andamento do projeto",
+  selection,
 }: StageTrackerProps) {
   const layout = compact ? LAYOUT.compact : LAYOUT.responsive;
 
@@ -50,6 +58,30 @@ export function StageTracker({
         {stages.map((stage, index) => {
           const done = stage.status === "concluida";
           const current = stage.status === "em_andamento";
+          const selected = selection?.selected === index;
+          const content = (
+            <>
+              <Dot done={done} current={current} />
+              <span className={compact ? "sr-only" : cn("flex flex-col gap-0.5", layout.text)}>
+                <span className={cn("type-eyebrow", current ? "text-accent" : "text-ink-muted")}>
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span
+                  className={cn(
+                    current ? "type-label text-ink" : "type-small text-ink-muted",
+                    selection && "decoration-2 underline-offset-4 group-hover:underline",
+                    selected && "underline",
+                  )}
+                >
+                  {stage.title}
+                </span>
+                {current && <span className="type-eyebrow text-accent">em andamento</span>}
+                {done && <span className="sr-only">concluída</span>}
+              </span>
+            </>
+          );
+          const bodyClass = cn("relative z-10 flex", layout.body);
+
           return (
             <li
               key={`${index}-${stage.title}`}
@@ -72,17 +104,19 @@ export function StageTracker({
                   className={cn("absolute top-3 -bottom-3 left-[11px] w-0.5", layout.lineOut)}
                 />
               )}
-              <Dot done={done} current={current} />
-              <span className={compact ? "sr-only" : cn("flex flex-col gap-0.5", layout.text)}>
-                <span className={cn("type-eyebrow", current ? "text-accent" : "text-ink-muted")}>
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <span className={current ? "type-label text-ink" : "type-small text-ink-muted"}>
-                  {stage.title}
-                </span>
-                {current && <span className="type-eyebrow text-accent">em andamento</span>}
-              </span>
-              {done && <span className="sr-only">concluída</span>}
+              {selection ? (
+                <button
+                  type="button"
+                  aria-expanded={selected}
+                  aria-controls={selection.detailsId}
+                  onClick={() => selection.onSelect(index)}
+                  className={cn(bodyClass, "group cursor-pointer rounded-sm text-left")}
+                >
+                  {content}
+                </button>
+              ) : (
+                <span className={bodyClass}>{content}</span>
+              )}
             </li>
           );
         })}

@@ -159,6 +159,21 @@ sombra acima valem para as outras áreas, não para a landing. Ao mexer nela, fi
 - Testes de ponta a ponta que precisam do Supabase ficam em `describe("with Supabase")` e só
   rodam no job `supabase` do CI (`tests/e2e/support/supabase.ts` lê o Mailpit).
 
+## Área do cliente
+
+- Leituras em `src/server/queries/projects.ts`, sempre com o cliente da sessão (a RLS filtra) e
+  depois de `requireRole("client")`. Projeto de outra empresa e projeto inexistente dão a mesma
+  resposta (`notFound()`).
+- Mídias do bucket privado `project-media` só por link assinado gerado no servidor; na tela, `<img>`
+  comum (o otimizador do `next/image` guardaria cada link assinado como imagem nova).
+- Datas formatadas no servidor (`src/lib/format.ts`, fuso de São Paulo), para o HTML bater com a
+  hidratação. Rótulos de tipo, status e etapa em `src/lib/project-labels.ts`.
+- Tempo real: `useProjectRealtime` só avisa que algo mudou e chama `router.refresh()`; os dados
+  sempre vêm do servidor. Quando o painel admin gravar uma atualização com mídias, grave tudo numa
+  transação só, ou o refresh pode chegar antes das mídias.
+- `/design/area-do-cliente` mostra as telas com dados de exemplo (`sample.ts`), sem banco.
+- Simular o admin avançando a etapa: `supabase/snippets/avancar-etapa.sql` (ver README).
+
 ## Estrutura de pastas
 
 ```text
@@ -166,10 +181,11 @@ sdg-site/
 ├── .github/                   # workflows/ci.yml, ISSUE_TEMPLATE/, pull_request_template.md
 ├── docs/                      # arquitetura, integração, runbook, referências de design
 ├── public/                    # imagens estáticas, portfólio; brand/ com os SVG do logo
-├── scripts/                   # build-tokens.mjs
+├── scripts/                   # build-tokens.mjs, seed-media.mjs (prints de exemplo locais)
 ├── supabase/
 │   ├── migrations/            # SQL versionado (tabelas, RLS, funções)
 │   ├── templates/             # e-mails do Auth (convite, recuperação de senha)
+│   ├── snippets/              # SQL útil no dia a dia local
 │   ├── tests/                 # testes de RLS
 │   ├── seed.sql
 │   └── config.toml

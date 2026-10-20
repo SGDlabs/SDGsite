@@ -62,18 +62,19 @@ values
   ('33333333-0000-4000-8000-000000000005', '22222222-2222-4222-8222-222222222222', 5,
    'Entrega e publicação', 'Publicação e entrega dos acessos.', 'pendente', null, null);
 
-insert into public.project_updates (project_id, stage_id, author_id, kind, title, body, source, created_at)
+-- fixed ids: `pnpm db:seed-media` attaches sample prints to the second one
+insert into public.project_updates (id, project_id, stage_id, author_id, kind, title, body, source, created_at)
 values
-  ('22222222-2222-4222-8222-222222222222', '33333333-0000-4000-8000-000000000001',
+  ('44444444-0000-4000-8000-000000000001', '22222222-2222-4222-8222-222222222222', '33333333-0000-4000-8000-000000000001',
    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'marco', 'Etapa concluída: Organização de ideias',
    null, 'manual', now() - interval '12 days'),
-  ('22222222-2222-4222-8222-222222222222', '33333333-0000-4000-8000-000000000002',
+  ('44444444-0000-4000-8000-000000000002', '22222222-2222-4222-8222-222222222222', '33333333-0000-4000-8000-000000000002',
    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'print', 'Telas da página inicial',
    'Primeira versão das telas de agenda e de confirmação.', 'manual', now() - interval '5 days'),
-  ('22222222-2222-4222-8222-222222222222', '33333333-0000-4000-8000-000000000002',
+  ('44444444-0000-4000-8000-000000000003', '22222222-2222-4222-8222-222222222222', '33333333-0000-4000-8000-000000000002',
    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'nota', 'Protótipo navegável disponível',
    'O link do protótipo está nos arquivos do projeto.', 'manual', now() - interval '2 days'),
-  ('22222222-2222-4222-8222-222222222222', '33333333-0000-4000-8000-000000000002',
+  ('44444444-0000-4000-8000-000000000004', '22222222-2222-4222-8222-222222222222', '33333333-0000-4000-8000-000000000002',
    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'video', 'Vídeo: fluxo de agendamento',
    null, 'manual', now() - interval '1 day');
 

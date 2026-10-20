@@ -25,6 +25,21 @@ export function anonClient() {
   );
 }
 
+/** Seed data (supabase/seed.sql). */
+export const SEED = {
+  password: "sdglabs-local",
+  client: "11111111-1111-4111-8111-111111111111",
+  project: "22222222-2222-4222-8222-222222222222",
+};
+
+/** Supabase signed in as that user, to act the way they would (row level security applies). */
+export async function signedInClient(email: string, password = SEED.password) {
+  const client = anonClient();
+  const { error } = await client.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+  return client;
+}
+
 /** A fresh address per test, so tests running side by side never share a mailbox. */
 export function testEmail(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@e2e.local`;
