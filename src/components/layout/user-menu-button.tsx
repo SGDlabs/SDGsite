@@ -59,7 +59,8 @@ export function UserMenuButton({ name, email, initials, avatarUrl, isAdmin }: Us
           onSelect={() =>
             startSignOut(async () => {
               await signOut();
-              // a full load: nothing of the account stays in the router's memory
+              // a full load on purpose: nothing of the account stays in the router's memory
+              // eslint-disable-next-line @next/next/no-location-assign-relative-destination
               window.location.assign("/login");
             })
           }

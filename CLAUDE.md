@@ -33,6 +33,9 @@ Next 16 tem mudanças grandes em relação a versões anteriores: consulte
   `connection()` + `<Suspense>`, `"use cache"` ou um Client Component.
 - Proteção de rotas fica em `src/proxy.ts` (o antigo middleware).
 - `LayoutProps` / `PageProps` são tipos gerados: `pnpm typecheck` roda `next typegen` antes do `tsc`.
+- O Next mantém até 3 páginas visitadas no documento, escondidas com `<Activity>`: ids fixos se
+  repetem entre elas (gere com `useId()`; o `Field` já faz isso), e nos testes de ponta a ponta
+  espere a URL nova antes de interagir depois de navegar.
 
 ## Comandos
 

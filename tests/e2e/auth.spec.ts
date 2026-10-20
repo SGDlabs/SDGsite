@@ -127,6 +127,8 @@ test.describe("with Supabase", () => {
 
       await page.goto("/login");
       await page.getByRole("link", { name: "Esqueci minha senha" }).click();
+      // wait for the page: Next keeps the login hidden in the document, so its field still exists
+      await expect(page).toHaveURL(/\/recuperar-senha$/);
       await page.getByRole("textbox", { name: "E-mail" }).fill(email);
       await page.getByRole("button", { name: "Enviar link" }).click();
       await expect(page.getByRole("main").getByRole("status")).toContainText(
@@ -143,6 +145,7 @@ test.describe("with Supabase", () => {
       // the new password works, and the link is spent
       await page.getByRole("button", { name: "Conta de Rita Recupera" }).click();
       await page.getByRole("menuitem", { name: "Sair" }).click();
+      await expect(page).toHaveURL(/\/login$/);
       await signIn(page, email, "senha-nova-1");
       await expect(page).toHaveURL(/\/painel$/);
     });

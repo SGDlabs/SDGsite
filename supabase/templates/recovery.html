@@ -1,6 +1,7 @@
 <!doctype html>
 <!--
-  Password recovery. Supabase fills in the {{ }} fields; locally the CLI reads this file
+  Password recovery. Supabase fills in the template fields (Go templates: never write double
+  braces in this comment, they would be parsed). Locally the CLI reads this file
   (supabase/config.toml), in production paste it in Authentication > Emails > Reset password.
   The link goes straight to /redefinir-senha: the token is only spent when the form is sent, so
   link scanners that open e-mails cannot use it up. Colors are the design system's grafite,
