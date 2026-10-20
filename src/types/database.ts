@@ -64,13 +64,13 @@ export type Database = {
                   ]
                 },"profiles": {
                   Row: {
-                    "avatar_url": string | null,"client_id": string | null,"created_at": string,"full_name": string | null,"id": string,"role": Database["public"]['Enums']["user_role"]
+                    "avatar_url": string | null,"client_id": string | null,"created_at": string,"full_name": string | null,"id": string,"notify_updates": boolean,"role": Database["public"]['Enums']["user_role"]
                   }
                   Insert: {
-                    "avatar_url"?: string | null,"client_id"?: string | null,"created_at"?: string,"full_name"?: string | null,"id": string,"role"?: Database["public"]['Enums']["user_role"]
+                    "avatar_url"?: string | null,"client_id"?: string | null,"created_at"?: string,"full_name"?: string | null,"id": string,"notify_updates"?: boolean,"role"?: Database["public"]['Enums']["user_role"]
                   }
                   Update: {
-                    "avatar_url"?: string | null,"client_id"?: string | null,"created_at"?: string,"full_name"?: string | null,"id"?: string,"role"?: Database["public"]['Enums']["user_role"]
+                    "avatar_url"?: string | null,"client_id"?: string | null,"created_at"?: string,"full_name"?: string | null,"id"?: string,"notify_updates"?: boolean,"role"?: Database["public"]['Enums']["user_role"]
                   }
                   Relationships: [
                     {
@@ -152,13 +152,13 @@ isOneToOne: false
                   ]
                 },"projects": {
                   Row: {
-                    "client_id": string,"cover_path": string | null,"created_at": string,"current_stage_position": number,"due_at": string | null,"id": string,"name": string,"started_at": string | null,"status": Database["public"]['Enums']["project_status"],"type": Database["public"]['Enums']["project_type"],"updated_at": string
+                    "client_id": string,"cover_path": string | null,"created_at": string,"current_stage_position": number,"digest_sent_at": string | null,"due_at": string | null,"id": string,"name": string,"started_at": string | null,"status": Database["public"]['Enums']["project_status"],"type": Database["public"]['Enums']["project_type"],"updated_at": string
                   }
                   Insert: {
-                    "client_id": string,"cover_path"?: string | null,"created_at"?: string,"current_stage_position"?: number,"due_at"?: string | null,"id"?: string,"name": string,"started_at"?: string | null,"status"?: Database["public"]['Enums']["project_status"],"type": Database["public"]['Enums']["project_type"],"updated_at"?: string
+                    "client_id": string,"cover_path"?: string | null,"created_at"?: string,"current_stage_position"?: number,"digest_sent_at"?: string | null,"due_at"?: string | null,"id"?: string,"name": string,"started_at"?: string | null,"status"?: Database["public"]['Enums']["project_status"],"type": Database["public"]['Enums']["project_type"],"updated_at"?: string
                   }
                   Update: {
-                    "client_id"?: string,"cover_path"?: string | null,"created_at"?: string,"current_stage_position"?: number,"due_at"?: string | null,"id"?: string,"name"?: string,"started_at"?: string | null,"status"?: Database["public"]['Enums']["project_status"],"type"?: Database["public"]['Enums']["project_type"],"updated_at"?: string
+                    "client_id"?: string,"cover_path"?: string | null,"created_at"?: string,"current_stage_position"?: number,"digest_sent_at"?: string | null,"due_at"?: string | null,"id"?: string,"name"?: string,"started_at"?: string | null,"status"?: Database["public"]['Enums']["project_status"],"type"?: Database["public"]['Enums']["project_type"],"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -217,12 +217,19 @@ isOneToOne: false
 "can_read_project_path":
 { Args: { "p_name": string }; Returns: boolean
                            },
+"claim_project_digest":
+{ Args: { "p_every"?: unknown,"p_project_id": string }; Returns: {
+              "allowed": boolean,
+"since": string
+            }[]
+                           },
 "create_project_with_stages":
 { Args: { "p_client_id": string,"p_due_at"?: string,"p_name": string,"p_type": Database["public"]['Enums']["project_type"] }; Returns: {
               "client_id": string,
 "cover_path": string | null,
 "created_at": string,
 "current_stage_position": number,
+"digest_sent_at": string | null,
 "due_at": string | null,
 "id": string,
 "name": string,
@@ -278,7 +285,10 @@ isOneToOne: false
         to: "project_updates"
         isOneToOne: true
         isSetofReturn: false
-      } }
+      } },
+"set_my_email_preferences":
+{ Args: { "p_notify_updates": boolean }; Returns: undefined
+                           }
           }
           Enums: {
             "lead_status": "novo"|"em_contato"|"fechado"|"perdido","portfolio_category": "site"|"app"|"sistema"|"integracao","project_status": "ativo"|"pausado"|"concluido","project_type": "site"|"app"|"sistema","stage_status": "pendente"|"em_andamento"|"concluida","update_kind": "nota"|"print"|"video"|"deploy"|"marco","update_source": "manual"|"api"|"github","user_role": "admin"|"client"

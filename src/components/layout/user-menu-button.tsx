@@ -43,6 +43,9 @@ export function UserMenuButton({ name, email, initials, avatarUrl, isAdmin }: Us
           {email !== name && <span className="truncate type-small text-ink-muted">{email}</span>}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link href="/painel/conta">Sua conta</Link>
+        </DropdownMenuItem>
         {isAdmin && (
           <>
             <DropdownMenuItem asChild>

@@ -2,13 +2,16 @@
 
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireRole } from "@/lib/auth/current-user";
+import { requestOrigin } from "@/lib/auth/origin";
 import { fromDateInput } from "@/lib/format";
 import { safeFileName } from "@/lib/slug";
 import { createClient } from "@/lib/supabase/server";
 import { invalid, type FormResult } from "@/lib/validations/form-result";
+import { notifyStageCompleted, sendProjectDigest } from "@/server/notifications";
 import {
   newProjectSchema,
   projectDetailsSchema,
@@ -135,6 +138,9 @@ export async function advanceStage(input: { projectId: string }): Promise<FormRe
   });
   if (error) return failure("stage not advanced", error, "Não conseguimos avançar a etapa.");
   revalidateProject(input.projectId);
+  const origin = await requestOrigin();
+  const next = data?.title ? { position: data.position, title: data.title } : null;
+  after(() => notifyStageCompleted({ projectId: input.projectId, next, origin }));
   return {
     ok: true,
     message: data?.title
@@ -201,6 +207,8 @@ export async function publishUpdate(
   if (error)
     return failure("update not published", error, "Não conseguimos publicar. Tente de novo.");
   revalidateProject(update.projectId);
+  const origin = await requestOrigin();
+  after(() => sendProjectDigest({ projectId: update.projectId, origin }));
   return { ok: true, message: "Atualização publicada." };
 }
 

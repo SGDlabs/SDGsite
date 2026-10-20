@@ -19,6 +19,10 @@ const serverSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: optional(z.string().min(1)),
   RESEND_API_KEY: optional(z.string().min(1)),
   EMAIL_FROM: optional(z.string().min(1)),
+  /** where the partners get internal notices (a new lead) */
+  EMAIL_TEAM: optional(z.string().min(1)),
+  /** Vercel Cron sends it as "Authorization: Bearer …" to /api/cron/* */
+  CRON_SECRET: optional(z.string().min(16)),
 });
 
 function parse<T extends z.ZodType>(

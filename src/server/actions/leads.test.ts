@@ -1,6 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { leadSchema } from "@/lib/validations/lead";
+import { notifyNewLead } from "@/server/notifications";
 import { submitLead } from "./leads";
+
+// work scheduled with after() runs right away here
+vi.mock("next/server", () => ({ after: (task: () => unknown) => task() }));
+vi.mock("@/lib/auth/origin", () => ({ requestOrigin: async () => "https://sdglabs.test" }));
+vi.mock("@/server/notifications", () => ({ notifyNewLead: vi.fn() }));
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -44,6 +50,11 @@ describe("submitLead", () => {
       message: "Um site novo",
     });
     expect(result).toEqual({ ok: true });
+    // the partners hear about it
+    expect(notifyNewLead).toHaveBeenCalledWith({
+      lead: expect.objectContaining({ name: "Maria", email: "maria@empresa.com.br" }),
+      origin: "https://sdglabs.test",
+    });
     const logged = JSON.stringify(info.mock.calls);
     expect(logged).not.toContain("maria@empresa.com.br");
     expect(logged).not.toContain("Maria");

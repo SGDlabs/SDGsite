@@ -193,6 +193,16 @@ sombra acima valem para as outras áreas, não para a landing. Ao mexer nela, fi
   envia direto ao Storage (XHR, com progresso) e `publishUpdate` grava a atualização e as mídias
   juntas; se algo falhar no caminho, `discardUpload` apaga os arquivos.
 
+## E-mails
+
+- Templates em `src/emails/`, com as peças de `layout.tsx` (tabelas e estilos inline). Ali, e só ali,
+  cores em hex: e-mail não lê as variáveis CSS do site.
+- O pacote `@react-email/components` está descontinuado no npm; usamos só `@react-email/render`.
+- Envie com `sendEmail` dentro de `after()` (`next/server`): nunca bloqueia nem desfaz a ação, e
+  sem `RESEND_API_KEY` só registra o assunto. Endereços nunca vão para o log.
+- Regras de quem recebe em `src/server/notifications.ts`; a janela de 2 horas do resumo é garantida
+  no banco por `claim_project_digest`.
+
 ## API de integração
 
 - `POST /api/integrations/updates` (`src/app/api/integrations/updates/route.ts`), documentada em
