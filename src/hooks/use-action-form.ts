@@ -15,6 +15,8 @@ export function useActionForm<Input extends FieldValues, Output extends FieldVal
   schema: z.ZodType<Output, Input>,
   action: (values: Output) => Promise<FormResult | undefined>,
   defaultValues: DefaultValues<Input>,
+  /** clears the form after a success, ready for the next entry */
+  { resetOnSuccess = false }: { resetOnSuccess?: boolean } = {},
 ) {
   const [formError, setFormError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -31,6 +33,7 @@ export function useActionForm<Input extends FieldValues, Output extends FieldVal
     const result = await action(values);
     if (!result) return;
     if (result.ok) {
+      if (resetOnSuccess) form.reset(defaultValues);
       setMessage(result.message ?? null);
       return;
     }

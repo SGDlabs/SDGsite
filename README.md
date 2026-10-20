@@ -150,6 +150,20 @@ volta tudo ao seed.
 
 Sem banco, a prévia interna `/design/area-do-cliente` mostra as mesmas telas com dados de exemplo.
 
+## Painel admin
+
+Só para quem tem o papel admin, em `/admin`:
+
+- **Visão geral**: projetos em andamento com a etapa atual, leads novos e as últimas atualizações.
+- **Clientes**: lista, cadastro e edição das empresas, quem tem acesso a cada uma (com o último
+  acesso ou a data do convite) e o botão "Convidar usuário".
+- **Leads**: o que chegou pelo formulário do site, com filtro e troca de status (novo, em contato,
+  fechado, perdido) na própria tabela.
+
+Projetos (com etapas e atualizações) e portfólio entram nos próximos PRs. Toda mutação é uma
+Server Action que valida com Zod, confere `requireRole("admin")` e grava com a sessão do admin, de
+modo que a RLS confere o papel de novo.
+
 ## Design system
 
 A marca vem do design system SDG Labs, e o README dele é a referência de voz, cores, tipografia e
