@@ -1,15 +1,31 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Silkscreen, Space_Grotesk } from "next/font/google";
-import { site } from "@/lib/site";
+import { site, siteUrl } from "@/lib/site";
 import "./globals.css";
 
-// Each --nf-* variable feeds the matching --font-* token in src/styles/tokens.css.
-const display = Space_Grotesk({ variable: "--nf-display", subsets: ["latin"] });
-const sans = IBM_Plex_Sans({ variable: "--nf-sans", subsets: ["latin"] });
-const pixel = Silkscreen({ variable: "--nf-pixel", subsets: ["latin"], weight: ["400", "700"] });
-const mono = IBM_Plex_Mono({ variable: "--nf-mono", subsets: ["latin"], weight: "400" });
+// Each --nf-* variable feeds the matching --font-* token in src/styles/tokens.css. They are not
+// preloaded: this layout wraps every page, and the landing (most visits) uses its own fonts, so
+// preloading these would compete with the landing's first paint. They load when a page uses them
+// (font-display: swap).
+const display = Space_Grotesk({ variable: "--nf-display", subsets: ["latin"], preload: false });
+const sans = IBM_Plex_Sans({ variable: "--nf-sans", subsets: ["latin"], preload: false });
+const pixel = Silkscreen({
+  variable: "--nf-pixel",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  preload: false,
+});
+const mono = IBM_Plex_Mono({
+  variable: "--nf-mono",
+  subsets: ["latin"],
+  weight: "400",
+  preload: false,
+});
 
 export const metadata: Metadata = {
+  metadataBase: siteUrl,
   title: {
     default: `${site.name} — ${site.slogan}`,
     template: `%s · ${site.name}`,
@@ -38,7 +54,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${display.variable} ${sans.variable} ${pixel.variable} ${mono.variable}`}
       suppressHydrationWarning
     >
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* Vercel's cookieless analytics: only where Vercel serves the site (no 404s elsewhere) */}
+        {process.env.VERCEL && (
+          <>
+            <Analytics />
+            <SpeedInsights />
+          </>
+        )}
+      </body>
     </html>
   );
 }

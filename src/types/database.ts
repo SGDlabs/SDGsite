@@ -38,13 +38,13 @@ export type Database = {
                   ]
                 },"leads": {
                   Row: {
-                    "company": string | null,"created_at": string,"email": string,"id": string,"message": string | null,"name": string,"phone": string | null,"service_interest": (string)[],"status": Database["public"]['Enums']["lead_status"]
+                    "company": string | null,"consent_at": string | null,"created_at": string,"email": string,"id": string,"message": string | null,"name": string,"phone": string | null,"service_interest": (string)[],"status": Database["public"]['Enums']["lead_status"]
                   }
                   Insert: {
-                    "company"?: string | null,"created_at"?: string,"email": string,"id"?: string,"message"?: string | null,"name": string,"phone"?: string | null,"service_interest"?: (string)[],"status"?: Database["public"]['Enums']["lead_status"]
+                    "company"?: string | null,"consent_at"?: string | null,"created_at"?: string,"email": string,"id"?: string,"message"?: string | null,"name": string,"phone"?: string | null,"service_interest"?: (string)[],"status"?: Database["public"]['Enums']["lead_status"]
                   }
                   Update: {
-                    "company"?: string | null,"created_at"?: string,"email"?: string,"id"?: string,"message"?: string | null,"name"?: string,"phone"?: string | null,"service_interest"?: (string)[],"status"?: Database["public"]['Enums']["lead_status"]
+                    "company"?: string | null,"consent_at"?: string | null,"created_at"?: string,"email"?: string,"id"?: string,"message"?: string | null,"name"?: string,"phone"?: string | null,"service_interest"?: (string)[],"status"?: Database["public"]['Enums']["lead_status"]
                   }
                   Relationships: [
                     

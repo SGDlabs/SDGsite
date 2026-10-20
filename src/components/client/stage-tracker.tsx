@@ -63,7 +63,12 @@ export function StageTracker({
             <>
               <Dot done={done} current={current} />
               <span className={compact ? "sr-only" : cn("flex flex-col gap-0.5", layout.text)}>
-                <span className={cn("type-eyebrow", current ? "text-accent" : "text-ink-muted")}>
+                {/* read as "Etapa 2 de 5, Design, em andamento" */}
+                <span className="sr-only">{`Etapa ${index + 1} de ${stages.length},`}</span>
+                <span
+                  aria-hidden="true"
+                  className={cn("type-eyebrow", current ? "text-accent" : "text-ink-muted")}
+                >
                   {String(index + 1).padStart(2, "0")}
                 </span>
                 <span
@@ -75,8 +80,13 @@ export function StageTracker({
                 >
                   {stage.title}
                 </span>
-                {current && <span className="type-eyebrow text-accent">em andamento</span>}
-                {done && <span className="sr-only">concluída</span>}
+                {current && (
+                  <span className="type-eyebrow text-accent">
+                    <span className="sr-only">, </span>em andamento
+                  </span>
+                )}
+                {done && <span className="sr-only">, concluída</span>}
+                {!done && !current && <span className="sr-only">, a fazer</span>}
               </span>
             </>
           );

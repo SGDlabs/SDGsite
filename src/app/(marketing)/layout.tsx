@@ -9,7 +9,13 @@ const display = Bricolage_Grotesque({
   axes: ["opsz", "wdth"],
 });
 const body = Geist({ variable: "--lf-body", subsets: ["latin"] });
-const mono = Geist_Mono({ variable: "--lf-mono", subsets: ["latin"], weight: ["400", "500"] });
+// mono only shows below the fold (stack lists, the panel's feed): no preload
+const mono = Geist_Mono({
+  variable: "--lf-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  preload: false,
+});
 
 // Runs while the HTML is parsed, before the first paint: the hero's word-by-word entrance and the
 // pinned sections depend on these classes, and adding them after hydration would make them flash.

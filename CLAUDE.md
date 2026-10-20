@@ -213,6 +213,18 @@ sombra acima valem para as outras áreas, não para a landing. Ao mexer nela, fi
 - Erros sempre como `{ error: { code, message } }`, mensagem em português. Arquivos somam no
   máximo 4 MB por chamada (limite de corpo da Vercel).
 
+## SEO, acessibilidade e performance
+
+- Página nova pública: metadata própria e, se for indexável, entrada em `src/app/sitemap.ts`;
+  área privada: `robots: { index: false }` e o caminho em `src/app/robots.ts`.
+- Página nova: inclua em `tests/e2e/a11y.spec.ts` (pública) ou `a11y-signed-in.spec.ts` (logada).
+  Links dentro de texto são sublinhados (WCAG 1.4.1).
+- Fontes: o layout raiz não pré-carrega as do design system (a landing não usa); pré-carregue só o
+  que aparece na primeira tela. A imagem que for o LCP ganha `loading="eager"` e
+  `fetchPriority="high"`. Animação de entrada de conteúdo grande parte de `opacity: 0.01`, não 0.
+- Sem banner de cookies enquanto não houver cookie além do de sessão; se entrar analytics com
+  cookie, o banner vira obrigatório.
+
 ## Estrutura de pastas
 
 ```text

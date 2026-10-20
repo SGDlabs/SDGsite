@@ -10,8 +10,9 @@ test("portfolio lists every case and filters by category", async ({ page }) => {
     "aria-current",
     "page",
   );
-  await expect(page.locator(".pf-grid .work")).toHaveCount(1);
-  await expect(page.locator(".pf-grid .work .w-tag")).toHaveText("Aplicativo");
+  // the other cases stay in the page, hidden
+  await expect(page.locator(".pf-grid .work:visible")).toHaveCount(1);
+  await expect(page.locator(".pf-grid .work:visible .w-tag")).toHaveText("Aplicativo");
 });
 
 test("case study shows the gallery in a lightbox", async ({ page }) => {

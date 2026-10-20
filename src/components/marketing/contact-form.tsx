@@ -28,7 +28,7 @@ export function ContactForm() {
     resolver: zodResolver(leadSchema),
     // like the prototype: errors only change when the form is sent again
     reValidateMode: "onSubmit",
-    defaultValues: { name: "", email: "", company: "", types: [], message: "" },
+    defaultValues: { name: "", email: "", company: "", types: [], message: "", consent: false },
   });
 
   async function onSubmit(values: Lead, event?: BaseSyntheticEvent) {
@@ -37,7 +37,9 @@ export function ContactForm() {
     const result = await submitLead(values);
     if (!result.ok) {
       for (const [field, message] of Object.entries(result.fieldErrors ?? {})) {
-        if (message) setError(field as "name" | "email", { message }, { shouldFocus: true });
+        if (message) {
+          setError(field as "name" | "email" | "consent", { message }, { shouldFocus: true });
+        }
       }
       setFormError(result.formError ?? null);
       return;
@@ -113,6 +115,27 @@ export function ContactForm() {
           placeholder="O que você precisa, para quando e qualquer referência que ajude"
           {...register("message")}
         ></textarea>
+      </div>
+      {/* not in the prototype: the LGPD consent, before sending */}
+      <div className="field-w consent">
+        <label className="consent-box">
+          <input
+            type="checkbox"
+            aria-invalid={isSubmitted ? Boolean(errors.consent) : undefined}
+            aria-describedby="e-consent"
+            {...register("consent")}
+          />
+          <span>
+            Li e concordo com a{" "}
+            <a href="/privacidade" target="_blank" rel="noopener">
+              Política de Privacidade
+            </a>
+            .
+          </span>
+        </label>
+        <span className="err-msg" id="e-consent">
+          {errors.consent?.message}
+        </span>
       </div>
       <button className="btn btn-primary btn-lg magnetic" id="f-submit" type="submit">
         <span>Enviar mensagem</span>

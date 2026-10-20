@@ -81,6 +81,7 @@ test("a lead from the site reaches the admin and moves along", async ({ page, is
   await page.goto("/");
   await page.getByRole("textbox", { name: "Nome", exact: true }).fill("Lead de Teste");
   await page.getByRole("textbox", { name: "E-mail", exact: true }).fill(email);
+  await page.getByRole("checkbox", { name: /Li e concordo com a Política de Privacidade/ }).check();
   await page.getByRole("button", { name: "Enviar mensagem" }).click();
   await expect(page.getByText("Mensagem enviada.")).toBeVisible();
 

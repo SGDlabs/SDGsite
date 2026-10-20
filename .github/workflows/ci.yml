@@ -102,7 +102,7 @@ jobs:
       - run: pnpm db:seed-media
 
       - name: Sign-in, client area, admin and integration API against the local Supabase
-        run: pnpm test:e2e auth client-area admin integration emails
+        run: pnpm test:e2e auth client-area admin integration emails a11y
 
       - name: The README's stage advance snippet works
         run: pnpm supabase db query --local -f supabase/snippets/avancar-etapa.sql

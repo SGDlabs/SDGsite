@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Suspense } from "react";
 import { LandingChrome, LandingPage } from "@/components/marketing/landing-page";
 import { PortfolioCard } from "@/components/marketing/portfolio-card";
+import { PortfolioChips, PortfolioFilter } from "@/components/marketing/portfolio-filter";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { SiteNav } from "@/components/marketing/site-nav";
 import { getPortfolioItems } from "@/server/queries/portfolio";
@@ -13,18 +13,7 @@ export const metadata: Metadata = {
   description: "Sites, aplicativos, sistemas e integrações feitos pela SDG Labs.",
 };
 
-const FILTERS: { category?: PortfolioCategory; label: string }[] = [
-  { label: "Todos" },
-  { category: "site", label: "Sites" },
-  { category: "app", label: "Aplicativos" },
-  { category: "sistema", label: "Sistemas" },
-  { category: "integracao", label: "Integrações" },
-];
-
-const isCategory = (value: unknown): value is PortfolioCategory =>
-  typeof value === "string" && value in PORTFOLIO_CATEGORIES;
-
-export default function PortfolioPage({ searchParams }: PageProps<"/portfolio">) {
+export default function PortfolioPage() {
   return (
     <LandingPage>
       <LandingChrome />
@@ -38,10 +27,11 @@ export default function PortfolioPage({ searchParams }: PageProps<"/portfolio">)
                 Sites, aplicativos, sistemas e integrações que saíram do nosso laboratório.
               </p>
             </div>
-            {/* the static shell lists every case; the filter from the URL streams in */}
-            <Suspense fallback={<PortfolioList />}>
-              <FilteredList searchParams={searchParams} />
+            {/* every case is in the static HTML; the filter from the URL applies in the browser */}
+            <Suspense fallback={<PortfolioChips />}>
+              <PortfolioFilter />
             </Suspense>
+            <PortfolioList />
           </div>
         </section>
       </main>
@@ -50,37 +40,24 @@ export default function PortfolioPage({ searchParams }: PageProps<"/portfolio">)
   );
 }
 
-async function FilteredList({ searchParams }: Pick<PageProps<"/portfolio">, "searchParams">) {
-  const { categoria } = await searchParams;
-  return <PortfolioList category={isCategory(categoria) ? categoria : undefined} />;
-}
-
-async function PortfolioList({ category }: { category?: PortfolioCategory }) {
-  const items = await getPortfolioItems({ category });
+async function PortfolioList() {
+  const items = await getPortfolioItems();
+  // categories with no case, for the filter's empty message
+  const empty = (Object.keys(PORTFOLIO_CATEGORIES) as PortfolioCategory[]).filter(
+    (category) => !items.some((item) => item.category === category),
+  );
   return (
     <>
-      <nav className="pf-filters" aria-label="Filtrar por categoria">
-        {FILTERS.map((filter) => (
-          <Link
-            key={filter.label}
-            href={filter.category ? `/portfolio?categoria=${filter.category}` : "/portfolio"}
-            className="pf-chip"
-            aria-current={category === filter.category ? "page" : undefined}
-            scroll={false}
-          >
-            {filter.label}
-          </Link>
-        ))}
-      </nav>
-      {items.length > 0 ? (
+      {items.length > 0 && (
         <div className="pf-grid">
-          {items.map((item) => (
-            <PortfolioCard key={item.slug} item={item} />
+          {items.map((item, index) => (
+            <PortfolioCard key={item.slug} item={item} first={index === 0} />
           ))}
         </div>
-      ) : (
-        <p className="pf-empty">Ainda não tem projeto publicado nesta categoria.</p>
       )}
+      <p className="pf-empty" data-empty-for={empty.join(" ")} hidden={items.length > 0}>
+        Ainda não tem projeto publicado nesta categoria.
+      </p>
     </>
   );
 }

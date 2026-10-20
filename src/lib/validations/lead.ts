@@ -16,6 +16,8 @@ export const leadSchema = z.object({
     z.array(z.enum(PROJECT_TYPES)),
   ),
   message: optionalText(4000),
+  /** LGPD: the visitor agrees to the privacy policy before sending */
+  consent: z.boolean().refine(Boolean, "Para enviar, aceite a Política de Privacidade."),
 });
 
 export type LeadInput = z.input<typeof leadSchema>;

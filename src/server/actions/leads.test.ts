@@ -12,7 +12,7 @@ afterEach(() => vi.restoreAllMocks());
 
 describe("leadSchema", () => {
   it("normalizes the checkbox group", () => {
-    const base = { name: "Maria", email: "maria@empresa.com.br" };
+    const base = { name: "Maria", email: "maria@empresa.com.br", consent: true };
     expect(leadSchema.parse({ ...base, types: false }).types).toEqual([]);
     expect(leadSchema.parse({ ...base, types: "app" }).types).toEqual(["app"]);
     expect(leadSchema.parse({ ...base, types: ["site", "app"] }).types).toEqual(["site", "app"]);
@@ -23,6 +23,7 @@ describe("leadSchema", () => {
       name: "Maria",
       email: "maria@empresa.com.br",
       types: ["x"],
+      consent: true,
     });
     expect(result.success).toBe(false);
   });
@@ -30,12 +31,13 @@ describe("leadSchema", () => {
 
 describe("submitLead", () => {
   it("returns the prototype's messages for missing name and invalid e-mail", async () => {
-    const result = await submitLead({ name: " ", email: "maria@", types: [] });
+    const result = await submitLead({ name: " ", email: "maria@", types: [], consent: false });
     expect(result).toEqual({
       ok: false,
       fieldErrors: {
         name: "Escreva seu nome.",
         email: "Use um e-mail válido, como voce@empresa.com.br.",
+        consent: "Para enviar, aceite a Política de Privacidade.",
       },
     });
   });
@@ -48,6 +50,7 @@ describe("submitLead", () => {
       company: "",
       types: ["site"],
       message: "Um site novo",
+      consent: true,
     });
     expect(result).toEqual({ ok: true });
     // the partners hear about it

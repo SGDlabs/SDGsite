@@ -158,3 +158,26 @@ test("an admin pauses and resumes a project", async ({ page }) => {
     .click();
   await expect(page.getByRole("button", { name: "Pausar projeto" })).toBeVisible();
 });
+
+test("the admin advances a stage on screen and the client's open page follows", async ({
+  page,
+  browser,
+}) => {
+  const project = await newProject();
+  // the client, with the project open in a browser of their own
+  const client = await (await browser.newContext()).newPage();
+  await signInAs(client, "cliente@exemplo.local", `/painel/projetos/${project.id}`);
+  await expect(client.locator('[data-realtime="live"]')).toBeVisible({ timeout: 20_000 });
+  const tracker = client.getByRole("list", { name: "Andamento do projeto" });
+  await expect(tracker.locator('[aria-current="step"]')).toContainText("Organização de ideias");
+
+  await signInAsAdmin(page, `/admin/projetos/${project.id}`);
+  await page.getByRole("button", { name: "Concluir etapa e avançar" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Concluir e avançar" }).click();
+  await expect(page.getByText("Etapa atual: Design.")).toBeVisible();
+
+  // no reload on the client's side
+  await expect(tracker.locator('[aria-current="step"]')).toContainText("Design");
+  await expect(client.getByText("Etapa 2 de 5 — Design")).toBeVisible();
+  await client.context().close();
+});
