@@ -310,3 +310,28 @@ export async function getAdminPortfolioItem(id: string) {
   if (error) throw fail("portfolio item", error);
   return data;
 }
+
+export interface ProjectTokenRow {
+  id: string;
+  label: string;
+  createdAtLabel: string;
+  lastUsedLabel: string | null;
+  revoked: boolean;
+}
+
+/** A project's integration tokens (never the tokens themselves: only their labels and dates). */
+export async function getProjectTokens(projectId: string): Promise<ProjectTokenRow[]> {
+  const { data, error } = await createAdminClient()
+    .from("project_tokens")
+    .select("id, label, created_at, last_used_at, revoked_at")
+    .eq("project_id", projectId)
+    .order("created_at", { ascending: false });
+  if (error) throw fail("project tokens", error);
+  return data.map((token) => ({
+    id: token.id,
+    label: token.label,
+    createdAtLabel: formatDay(token.created_at),
+    lastUsedLabel: token.last_used_at ? formatDateTime(token.last_used_at) : null,
+    revoked: Boolean(token.revoked_at),
+  }));
+}

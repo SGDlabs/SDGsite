@@ -243,6 +243,24 @@ isOneToOne: false
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
+"publish_integration_update":
+{ Args: { "p_body"?: string,"p_id": string,"p_kind": Database["public"]['Enums']["update_kind"],"p_media"?: Json,"p_stage_position": number,"p_title": string,"p_token_id": string }; Returns: {
+              "author_id": string | null,
+"body": string | null,
+"created_at": string,
+"id": string,
+"kind": Database["public"]['Enums']["update_kind"],
+"project_id": string,
+"source": Database["public"]['Enums']["update_source"],
+"stage_id": string | null,
+"title": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "project_updates"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "publish_project_update":
 { Args: { "p_body"?: string,"p_id": string,"p_kind": Database["public"]['Enums']["update_kind"],"p_media"?: Json,"p_project_id": string,"p_stage_id": string,"p_title": string }; Returns: {
               "author_id": string | null,

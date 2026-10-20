@@ -10,12 +10,13 @@ import {
   ProjectStatusActions,
 } from "@/components/admin/project-actions";
 import { ProjectDetailsForm, StageForm } from "@/components/admin/project-forms";
+import { IntegrationPanel } from "@/components/admin/integration-panel";
 import { UpdateComposer } from "@/components/admin/update-composer";
 import { Badge } from "@/components/ui/badge";
 import { requireRole } from "@/lib/auth/current-user";
 import { toDateInput } from "@/lib/format";
 import { PROJECT_STATUS_LABELS, PROJECT_TYPE_LABELS, stageLine } from "@/lib/project-labels";
-import { getProjectClient } from "@/server/queries/admin";
+import { getProjectClient, getProjectTokens } from "@/server/queries/admin";
 import { getProject } from "@/server/queries/projects";
 
 export const metadata: Metadata = { title: "Projeto", robots: { index: false } };
@@ -38,6 +39,7 @@ async function Project({ params }: Pick<PageProps<"/admin/projetos/[id]">, "para
   const { id } = await params;
   const [project, client] = await Promise.all([getProject(id), getProjectClient(id)]);
   if (!project || !client) notFound();
+  const tokens = await getProjectTokens(project.id);
 
   const current = project.stages.find((stage) => stage.status === "em_andamento");
   const isLast = current?.position === project.stages.at(-1)?.position;
@@ -128,6 +130,10 @@ async function Project({ params }: Pick<PageProps<"/admin/projetos/[id]">, "para
             mediaCount: update.media.length,
           }))}
         />
+      </Panel>
+
+      <Panel title="Integração">
+        <IntegrationPanel projectId={project.id} tokens={tokens} />
       </Panel>
     </>
   );

@@ -193,6 +193,16 @@ sombra acima valem para as outras áreas, não para a landing. Ao mexer nela, fi
   envia direto ao Storage (XHR, com progresso) e `publishUpdate` grava a atualização e as mídias
   juntas; se algo falhar no caminho, `discardUpload` apaga os arquivos.
 
+## API de integração
+
+- `POST /api/integrations/updates` (`src/app/api/integrations/updates/route.ts`), documentada em
+  `docs/integracao.md`. Token `sdg_…` gerado no admin; no banco só o SHA-256
+  (`src/lib/integration/tokens.ts`).
+- A API só publica no feed, com `publish_integration_update` (só a service role executa). Nada
+  dela avança etapa nem cria marco; mantenha assim.
+- Erros sempre como `{ error: { code, message } }`, mensagem em português. Arquivos somam no
+  máximo 4 MB por chamada (limite de corpo da Vercel).
+
 ## Estrutura de pastas
 
 ```text
