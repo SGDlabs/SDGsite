@@ -172,6 +172,13 @@ Só para quem tem o papel admin, em `/admin`:
   Server Action que valida com Zod, confere `requireRole("admin")` e grava com a sessão do admin, de
   modo que a RLS confere o papel de novo.
 
+## Integração com o projeto do cliente
+
+O repositório do cliente pode publicar no feed do projeto com um token gerado no admin (página do
+projeto > Integração): `POST /api/integrations/updates`, em JSON ou com prints em multipart. A API
+só publica; avançar etapa é do admin. O passo a passo, os erros e o workflow de exemplo que tira
+prints a cada deploy da Vercel estão em [docs/integracao.md](docs/integracao.md).
+
 ## Design system
 
 A marca vem do design system SDG Labs, e o README dele é a referência de voz, cores, tipografia e

@@ -1,0 +1,42 @@
+# Copy to .github/workflows/sdg-update.yml in the CLIENT's repository (not in sdg-site).
+# On every successful Vercel deploy, takes prints of the preview (desktop and phone) and posts
+# them to the project's feed at SDG Labs as a "deploy" update, with the preview link.
+#
+# Needs: the secret SDG_TOKEN (generated in the SDG Labs admin, project page > Integração) and
+# the script .github/sdg/prints.mjs (copy docs/integracao/prints.mjs).
+name: SDG Labs
+
+on:
+  deployment_status:
+
+permissions:
+  contents: read
+
+jobs:
+  prints:
+    # Vercel reports each deploy to GitHub; only the finished ones have a URL to open
+    if: github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.deployment.sha }}
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      # playwright-core drives the Google Chrome that ships with the runner: no browser download
+      - run: npm install --no-save --no-package-lock playwright-core@1.63.0
+
+      - name: Prints of the preview, posted to SDG Labs
+        run: node .github/sdg/prints.mjs
+        env:
+          SDG_TOKEN: ${{ secrets.SDG_TOKEN }}
+          SDG_API: https://[domínio da SDG Labs]/api/integrations/updates
+          PREVIEW_URL: ${{ github.event.deployment_status.environment_url }}
+          # the pages to print, separated by spaces
+          PAGES: "/ /contato"
+          ENVIRONMENT: ${{ github.event.deployment.environment }}
+          COMMIT_SHA: ${{ github.event.deployment.sha }}

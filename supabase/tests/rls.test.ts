@@ -408,3 +408,75 @@ describe("a visitor", () => {
     ).rejects.toThrow(/row-level security/);
   });
 });
+
+describe("the integration API", () => {
+  async function newToken(revoked = false) {
+    const [token] = await db.sql<{ id: string }>(
+      `insert into public.project_tokens (project_id, label, token_hash, revoked_at)
+       values ($1, 'CI', $2, $3) returning id`,
+      [ids.projectA, randomUUID(), revoked ? new Date().toISOString() : null],
+    );
+    return token!.id;
+  }
+
+  it("posts to the token's project, in the stage in progress, as the API", async () => {
+    const token = await newToken();
+    const update = randomUUID();
+    await db.sql(
+      `select public.publish_integration_update($1, $2, null, 'deploy', 'Deploy', 'Preview', $3::jsonb)`,
+      [
+        token,
+        update,
+        JSON.stringify([{ path: `${ids.projectA}/${update}/home.png`, mime_type: "image/png" }]),
+      ],
+    );
+    const [row] = await db.sql(
+      `select u.project_id, u.source, u.author_id, s.status as stage_status,
+              (select count(*)::int from public.update_media m where m.update_id = u.id) as media,
+              (select last_used_at is not null from public.project_tokens where id = $2) as used
+       from public.project_updates u left join public.project_stages s on s.id = u.stage_id
+       where u.id = $1`,
+      [update, token],
+    );
+    expect(row).toEqual({
+      project_id: ids.projectA,
+      source: "api",
+      author_id: null,
+      stage_status: "em_andamento",
+      media: 1,
+      used: true,
+    });
+  });
+
+  it("refuses a revoked token", async () => {
+    const token = await newToken(true);
+    await expect(
+      db.sql(`select public.publish_integration_update($1, $2, null, 'nota', 'Oi')`, [
+        token,
+        randomUUID(),
+      ]),
+    ).rejects.toThrow(/revoked or unknown/);
+  });
+
+  it("never posts milestones, which belong to the admins", async () => {
+    const token = await newToken();
+    await expect(
+      db.sql(`select public.publish_integration_update($1, $2, null, 'marco', 'Etapa concluída')`, [
+        token,
+        randomUUID(),
+      ]),
+    ).rejects.toThrow(/milestones/);
+  });
+
+  it("is not callable from the browser, not even by an admin", async () => {
+    const token = await newToken();
+    await expect(
+      db.as(ids.admin, (sql) =>
+        sql(`select public.publish_integration_update($1, $2, null, 'nota', 'Oi')`, [
+          token,
+          randomUUID(),
+        ]),
+      ),
+    ).rejects.toThrow(/permission denied/);
+  });
+});
