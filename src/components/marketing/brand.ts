@@ -42,5 +42,8 @@ export const FEED_ICONS = {
 
 export type FeedIcon = keyof typeof FEED_ICONS;
 
+/** Dispatched by the contact form when a lead is sent; the landing script makes the liquid surge. */
+export const LEAD_SENT_EVENT = "landing:lead-sent";
+
 /** Inline CSS custom properties, e.g. style={cssVars({ "--i": 2 })}. */
 export const cssVars = (vars: Record<`--${string}`, string | number>) => vars as CSSProperties;
