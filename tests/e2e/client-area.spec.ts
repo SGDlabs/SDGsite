@@ -115,10 +115,17 @@ test("prints load from private storage and open in a lightbox", async ({ page })
   await expect(lightbox).toBeHidden();
 });
 
-test("the stage moves live when the admin advances it", async ({ page }) => {
+test("the stage moves live when the admin advances it", async ({ page }, testInfo) => {
   const { project, admin } = await newProject();
   const service = adminClient();
   cleanup.push(() => service.from("projects").delete().eq("id", project.id));
+  // what Realtime said, attached to the report when the test fails
+  const frames: string[] = [];
+  page.on("websocket", (socket) => {
+    socket.on("framesent", (frame) => frames.push(`> ${String(frame.payload).slice(0, 400)}`));
+    socket.on("framereceived", (frame) => frames.push(`< ${String(frame.payload).slice(0, 400)}`));
+  });
+  cleanup.push(() => testInfo.attach("realtime-frames", { body: frames.join("\n") }));
 
   await signInAsClient(page, `/painel/projetos/${project.id}`);
   await expect(page.getByText("Etapa 1 de 5 — Organização de ideias")).toBeVisible();
