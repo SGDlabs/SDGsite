@@ -57,7 +57,14 @@ async function Client({ params }: Pick<PageProps<"/admin/clientes/[id]">, "param
           </Panel>
         </div>
         <div className="xl:col-span-2">
-          <Panel title="Projetos">
+          <Panel
+            title="Projetos"
+            action={
+              <Link href={`/admin/projetos/novo?cliente=${client.id}`} className="type-label">
+                Novo projeto
+              </Link>
+            }
+          >
             {client.projects.length === 0 ? (
               <p className="text-ink-muted">Nenhum projeto ainda.</p>
             ) : (
@@ -67,7 +74,9 @@ async function Client({ params }: Pick<PageProps<"/admin/clientes/[id]">, "param
                     key={project.id}
                     className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0"
                   >
-                    <span className="type-label">{project.name}</span>
+                    <Link href={`/admin/projetos/${project.id}`} className="type-label">
+                      {project.name}
+                    </Link>
                     <Badge size="sm" variant="outline">
                       {PROJECT_TYPE_LABELS[project.type]}
                     </Badge>

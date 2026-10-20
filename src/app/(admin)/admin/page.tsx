@@ -36,7 +36,9 @@ async function Overview() {
           <ul className="flex flex-col divide-y divide-border">
             {projects.map((project) => (
               <li key={project.id} className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0">
-                <span className="type-label">{project.name}</span>
+                <Link href={`/admin/projetos/${project.id}`} className="type-label">
+                  {project.name}
+                </Link>
                 <span className="type-small text-ink-muted">
                   {project.clientName} ·{" "}
                   {stageLine(project.currentPosition, project.stageCount, project.currentTitle)}
@@ -95,7 +97,7 @@ async function Overview() {
                   </Badge>
                   <span className="type-label">{update.title}</span>
                   <span className="type-small text-ink-muted">
-                    {update.projectName} ·{" "}
+                    <Link href={`/admin/projetos/${update.projectId}`}>{update.projectName}</Link> ·{" "}
                     <time dateTime={update.createdAt}>{update.createdAtLabel}</time>
                   </span>
                 </li>
