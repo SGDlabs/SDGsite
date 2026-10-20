@@ -276,3 +276,37 @@ export async function getProjectClient(projectId: string) {
   if (error) throw fail("project client", error);
   return data ? { id: data.client_id, name: data.clients?.name ?? "" } : null;
 }
+
+export interface AdminPortfolioRow {
+  id: string;
+  title: string;
+  slug: string;
+  category: Tables<"portfolio_items">["category"];
+  published: boolean;
+  featured: boolean;
+}
+
+/** /admin/portfolio: every case, drafts included, in listing order. */
+export async function getAdminPortfolio(): Promise<AdminPortfolioRow[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("portfolio_items")
+    .select("id, title, slug, category, published, featured")
+    .order("sort_order")
+    .order("created_at");
+  if (error) throw fail("portfolio", error);
+  return data;
+}
+
+/** One case for the editor, or null. */
+export async function getAdminPortfolioItem(id: string) {
+  if (!z.uuid().safeParse(id).success) return null;
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("portfolio_items")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw fail("portfolio item", error);
+  return data;
+}

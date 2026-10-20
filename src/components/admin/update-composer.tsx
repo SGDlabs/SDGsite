@@ -7,8 +7,8 @@ import { fieldClasses, Input, Textarea } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Notice } from "@/components/ui/notice";
 import { useActionForm } from "@/hooks/use-action-form";
-import { supabaseConfig } from "@/lib/env";
 import { UPDATE_KIND_LABELS } from "@/lib/project-labels";
+import { imageSize, uploadToSignedUrl } from "@/lib/upload";
 import { cn } from "@/lib/utils";
 import {
   MAX_MEDIA_BYTES,
@@ -21,39 +21,6 @@ import { discardUpload, prepareUpload, publishUpdate } from "@/server/actions/pr
 
 const selectClass = cn(fieldClasses, "min-h-11");
 const megabytes = (bytes: number) => `${(bytes / 1024 / 1024).toFixed(1).replace(".", ",")} MB`;
-
-/** PUT to a signed Storage URL, reporting the bytes sent (fetch cannot report upload progress). */
-function uploadFile(url: string, file: File, onProgress: (sent: number) => void) {
-  return new Promise<void>((resolve, reject) => {
-    const request = new XMLHttpRequest();
-    request.open("PUT", url);
-    request.setRequestHeader("x-upsert", "false");
-    if (supabaseConfig) request.setRequestHeader("apikey", supabaseConfig.anonKey);
-    request.upload.onprogress = (event) => onProgress(event.loaded);
-    request.onload = () =>
-      request.status >= 200 && request.status < 300
-        ? resolve()
-        : reject(new Error(`upload failed (${request.status})`));
-    request.onerror = () => reject(new Error("upload failed (network)"));
-    // the same body supabase-js sends to a signed upload URL
-    const body = new FormData();
-    body.append("cacheControl", "3600");
-    body.append("", file);
-    request.send(body);
-  });
-}
-
-async function imageSize(file: File) {
-  if (!file.type.startsWith("image/")) return {};
-  try {
-    const bitmap = await createImageBitmap(file);
-    const size = { width: bitmap.width, height: bitmap.height };
-    bitmap.close();
-    return size;
-  } catch {
-    return {};
-  }
-}
 
 function checkFiles(files: File[]) {
   if (files.length > MAX_MEDIA_FILES)
@@ -113,7 +80,7 @@ export function UpdateComposer({
         try {
           for (const [index, file] of files.entries()) {
             const ticket = prepared.uploads[index]!;
-            await uploadFile(ticket.signedUrl, file, (bytes) => {
+            await uploadToSignedUrl(ticket.signedUrl, file, (bytes) => {
               sent[index] = bytes;
               setProgress(Math.round((sent.reduce((a, b) => a + b, 0) / total) * 100));
             });

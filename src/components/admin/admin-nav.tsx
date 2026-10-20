@@ -8,6 +8,7 @@ export const ADMIN_SECTIONS = [
   { href: "/admin", label: "Visão geral" },
   { href: "/admin/clientes", label: "Clientes" },
   { href: "/admin/projetos", label: "Projetos" },
+  { href: "/admin/portfolio", label: "Portfólio" },
   { href: "/admin/leads", label: "Leads" },
 ];
 
