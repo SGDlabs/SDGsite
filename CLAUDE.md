@@ -75,6 +75,24 @@ de lá é a referência de voz, cores, tipografia, logo e animação.
   contraste ali.
 - Voz: primeira pessoa do plural ("a gente", "nós"), cliente tratado por "você", frases curtas, no
   máximo uma metáfora de laboratório por seção, sem emoji.
+- A página interna `/design` (fora dos buscadores) mostra tokens, contraste e todos os componentes.
+  O teste `src/lib/contrast.test.ts` garante os pares de texto em 4,5:1 nos dois temas.
+
+## Componentes (shadcn/ui)
+
+`components.json` está configurado (estilo `radix-nova`, ícones `lucide`). Os componentes moram em
+`src/components/ui/` e usam o vocabulário dos tokens, não o do shadcn.
+
+- Para adicionar um: `pnpm dlx shadcn@4.21.3 add <nome> --view`, e escreva o arquivo à mão a partir
+  dele. Não rode `shadcn init` nem `add` sem `--view`: o CLI reescreve `globals.css`, troca a fonte
+  do layout e cria variáveis (`--accent`, `--border`…) que sobrescrevem os tokens.
+- Troca de cores: `primary` → `accent` / `on-accent`; `foreground` → `ink`; `background` →
+  `surface`; `muted` e o `accent` de hover do shadcn → `surface-alt`; `muted-foreground` →
+  `ink-muted`; `input` → `border-strong`; `card` → `surface-alt`. Ainda não há token de erro.
+- Foco: o anel global de `:focus-visible` (2px sólido em `focus`, 2px de afastamento). Tire os
+  `ring-*`/`outline-none` de foco dos componentes do shadcn.
+- Botões e campos em `radius-sm`, cards em `radius-md`; `shadow-pixel` só no hover do botão
+  principal e em cards em destaque.
 
 ## Landing page (exceção)
 
