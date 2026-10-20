@@ -31,7 +31,7 @@ Next 16 tem mudanças grandes em relação a versões anteriores: consulte
 
 - `cacheComponents` está ligado: `new Date()`, `Math.random()` e afins quebram o prerender; use
   `connection()` + `<Suspense>`, `"use cache"` ou um Client Component.
-- Proteção de rotas fica em `proxy.ts` (o antigo middleware).
+- Proteção de rotas fica em `src/proxy.ts` (o antigo middleware).
 - `LayoutProps` / `PageProps` são tipos gerados: `pnpm typecheck` roda `next typegen` antes do `tsc`.
 
 ## Comandos
@@ -127,8 +127,8 @@ sombra acima valem para as outras áreas, não para a landing. Ao mexer nela, fi
 - Depois de mudar o schema: `pnpm db:types` (precisa do Supabase local) e teste em
   `supabase/tests/rls.test.ts`. Sem Docker, `pnpm test` roda esses testes no PGlite, com
   `supabase/tests/bootstrap.sql` imitando o que a plataforma fornece. O CI roda contra o Supabase
-  real e falha se `src/types/database.ts` não bater com o schema (o arquivo gerado fica como
-  artefato `database-types`).
+  real e falha se `src/types/database.ts` não bater com o schema (o arquivo gerado fica no
+  artefato `supabase-job`).
 - Papel e empresa do usuário vêm do `app_metadata` do Auth (só a service role escreve). Nunca
   conceda acesso por `user_metadata`.
 - Clientes do Supabase em `src/lib/supabase`: `server.ts` (sessão por cookies, RLS do usuário),
@@ -136,6 +136,25 @@ sombra acima valem para as outras áreas, não para a landing. Ao mexer nela, fi
   `"use cache"`) e `admin.ts` (service role, só no servidor e depois de `requireRole`).
 - Sem as variáveis do Supabase o site roda no modo conteúdo (`src/content`); quem lê dados deve
   manter esse caminho funcionando enquanto ele existir.
+
+## Login e permissões
+
+- Três camadas: `src/proxy.ts` (otimista, pelo JWT: renova a sessão e redireciona por papel),
+  `requireRole("admin" | "client")` em toda página e Server Action protegida, e a RLS. Nunca
+  confie só no proxy, e não faça a checagem no layout (layout não re-renderiza na navegação).
+- `getCurrentUser()` (`src/lib/auth/current-user.ts`) lê cookies: chame dentro de `<Suspense>`.
+  O admin passa em `requireRole("client")`.
+- Regras puras (papel, destino de cada papel, `safeNext` contra open redirect, decisão do proxy)
+  ficam em `src/lib/auth/roles.ts` e `access.ts`, com testes.
+- Mensagens de login em `src/lib/auth/messages.ts`: nenhuma revela se o e-mail tem conta.
+- Formulários: React Hook Form + o mesmo schema Zod na action, via `useActionForm`
+  (`src/hooks/use-action-form.ts`), com `Field` e `Notice` de `components/ui`. A action devolve
+  `FormResult` (`src/lib/validations/form-result.ts`).
+- Links de e-mail (convite e recuperação) levam direto à página com `?token_hash=`, que só é
+  gasto no envio do formulário. Templates em `supabase/templates/`; ao mudar, atualize também o
+  painel do Supabase em produção.
+- Testes de ponta a ponta que precisam do Supabase ficam em `describe("with Supabase")` e só
+  rodam no job `supabase` do CI (`tests/e2e/support/supabase.ts` lê o Mailpit).
 
 ## Estrutura de pastas
 
@@ -147,6 +166,8 @@ sdg-site/
 ├── scripts/                   # build-tokens.mjs
 ├── supabase/
 │   ├── migrations/            # SQL versionado (tabelas, RLS, funções)
+│   ├── templates/             # e-mails do Auth (convite, recuperação de senha)
+│   ├── tests/                 # testes de RLS
 │   ├── seed.sql
 │   └── config.toml
 ├── src/
@@ -163,6 +184,7 @@ sdg-site/
 │   │   ├── ui/                # shadcn/ui tematizado
 │   │   ├── layout/            # Header, Footer, Container, Logo
 │   │   ├── marketing/         # seções da landing
+│   │   ├── auth/              # cards e formulários de login, convite e senha
 │   │   ├── client/            # StageTracker, UpdateFeed, MediaGallery
 │   │   └── admin/
 │   ├── server/
@@ -171,16 +193,16 @@ sdg-site/
 │   ├── lib/
 │   │   ├── brand/             # sdg-logo.js (design system)
 │   │   ├── supabase/          # server.ts, client.ts, admin.ts
-│   │   ├── auth/              # getCurrentUser, requireRole
+│   │   ├── auth/              # getCurrentUser, requireRole, papéis, mensagens
 │   │   ├── validations/       # schemas Zod
 │   │   └── env.ts
-│   ├── hooks/                 # useProjectRealtime
+│   ├── hooks/                 # useActionForm, useProjectRealtime
 │   ├── emails/                # React Email
 │   ├── content/               # dados iniciais do portfólio
 │   ├── styles/                # tokens.json (cópia do design system) e tokens.css (gerado)
-│   └── types/                 # database.ts gerado
-├── tests/e2e/
-├── proxy.ts                   # proteção de rotas (Next 16)
+│   ├── types/                 # database.ts gerado
+│   └── proxy.ts               # proteção de rotas (Next 16)
+├── tests/e2e/                 # support/ com o acesso ao Supabase e ao Mailpit
 ├── CLAUDE.md
 ├── .env.example
 └── README.md

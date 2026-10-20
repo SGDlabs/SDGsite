@@ -1,0 +1,81 @@
+<!doctype html>
+<!--
+  Invitation to the client area. Supabase fills in the {{ }} fields; locally the CLI reads this file
+  (supabase/config.toml), in production paste it in Authentication > Emails > Invite user.
+  The link goes straight to /convite: the token is only spent when the form is sent, so link
+  scanners that open e-mails cannot use it up. Colors are the design system's grafite, petroleo
+  and nevoa, inline because e-mail clients ignore stylesheets.
+-->
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Seu acesso à área do cliente</title>
+  </head>
+  <body style="margin: 0; padding: 0; background: #f2f2f2">
+    <table
+      role="presentation"
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      style="background: #f2f2f2"
+    >
+      <tr>
+        <td align="center" style="padding: 32px 16px">
+          <table
+            role="presentation"
+            width="100%"
+            cellpadding="0"
+            cellspacing="0"
+            style="
+              max-width: 520px;
+              background: #ffffff;
+              border: 1px solid #d9d9d9;
+              border-radius: 8px;
+            "
+          >
+            <tr>
+              <td style="padding: 32px; font-family: Arial, Helvetica, sans-serif; color: #353535">
+                <p
+                  style="margin: 0 0 24px; font-size: 14px; font-weight: bold; letter-spacing: 2px"
+                >
+                  SDG <span style="color: #3c6e71">LABS</span>
+                </p>
+                <h1 style="margin: 0 0 16px; font-size: 24px; line-height: 32px">
+                  Olá{{ if .Data.full_name }}, {{ .Data.full_name }}{{ end }}.
+                </h1>
+                <p style="margin: 0 0 16px; font-size: 16px; line-height: 24px">
+                  A gente criou o seu acesso à área do cliente da SDG Labs. É lá que você acompanha
+                  o projeto etapa por etapa, com prints, vídeos e notas de cada novidade.
+                </p>
+                <p style="margin: 0 0 24px; font-size: 16px; line-height: 24px">
+                  Para entrar, confirme seu nome e escolha uma senha.
+                </p>
+                <p style="margin: 0 0 24px">
+                  <a
+                    href="{{ .SiteURL }}/convite?token_hash={{ .TokenHash }}"
+                    style="
+                      display: inline-block;
+                      padding: 12px 24px;
+                      background: #3c6e71;
+                      color: #ffffff;
+                      border-radius: 4px;
+                      font-size: 16px;
+                      font-weight: bold;
+                      text-decoration: none;
+                    "
+                    >Criar meu acesso</a
+                  >
+                </p>
+                <p style="margin: 0; font-size: 14px; line-height: 20px; color: #5a5a5a">
+                  O link vale por 24 horas e só pode ser usado uma vez. Se você não esperava este
+                  e-mail, pode ignorá-lo.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

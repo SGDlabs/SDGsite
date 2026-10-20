@@ -13,15 +13,21 @@ interface HeaderProps {
   nav?: NavItem[];
   /** Right-hand slot: a call to action, the user menu… */
   actions?: ReactNode;
+  /** Where the logo goes: the site, or the start of the client area or the admin. */
+  homeHref?: string;
 }
 
 /** Header of the logged-in and internal areas (the landing has its own). */
-export function Header({ nav = [], actions }: HeaderProps) {
+export function Header({ nav = [], actions, homeHref = "/" }: HeaderProps) {
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-surface">
       <Container className="relative flex min-h-18 items-center gap-6">
         {/* py-2 keeps the logo's clear space: 4 grid cells at 2px each */}
-        <Link href="/" className="flex items-center rounded-sm py-2" aria-label="SDG Labs — início">
+        <Link
+          href={homeHref}
+          className="flex items-center rounded-sm py-2"
+          aria-label="SDG Labs — início"
+        >
           {/* the horizontal logo needs 120px; on very narrow screens only the icon fits */}
           <span className="max-[379px]:hidden">
             <Logo variant="horizontal" alt="" />

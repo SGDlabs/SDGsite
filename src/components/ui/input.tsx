@@ -1,9 +1,10 @@
 import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 
-// Fields: radius-sm, border-strong outline (3:1 against surface), body text.
+// Fields: radius-sm, border-strong outline (3:1 against surface), body text. Invalid fields take
+// the ink outline; their message (Field) says what is wrong.
 const fieldClasses =
-  "type-body w-full min-w-0 rounded-sm border border-border-strong bg-surface px-3 py-2.5 text-ink placeholder:text-ink-muted disabled:cursor-not-allowed disabled:opacity-50";
+  "type-body w-full min-w-0 rounded-sm border border-border-strong bg-surface px-3 py-2.5 text-ink placeholder:text-ink-muted disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-ink";
 
 function Input({ className, type, ...props }: ComponentProps<"input">) {
   return (

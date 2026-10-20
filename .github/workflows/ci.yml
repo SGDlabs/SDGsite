@@ -50,10 +50,10 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
-  database:
-    name: Database (local Supabase)
+  supabase:
+    name: Supabase (database, sign-in and e-mails)
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -68,10 +68,10 @@ jobs:
       # also installs the Supabase CLI (devDependency)
       - run: pnpm install --frozen-lockfile
 
-      - name: Start Postgres, apply the migrations and the seed
-        run: |
-          pnpm supabase db start
-          pnpm supabase db reset
+      # Postgres, Auth, the REST API, the gateway and the mailbox (Mailpit): what the tests use.
+      # Applies the migrations and the seed.
+      - name: Start the local Supabase
+        run: pnpm supabase start -x studio,imgproxy,logflare,vector,postgres-meta,supavisor,realtime,storage-api,edge-runtime
 
       - name: Row level security tests against Supabase's Postgres
         run: pnpm test:db
@@ -83,9 +83,27 @@ jobs:
           pnpm --silent supabase gen types typescript --local > "$RUNNER_TEMP/database.ts"
           diff -u src/types/database.ts "$RUNNER_TEMP/database.ts"
 
+      # The local project's URL and keys (public demo keys, not secrets) for the build and the tests.
+      - name: Point the app at the local Supabase
+        run: |
+          eval "$(pnpm --silent supabase status -o env | grep -E '^[A-Z_]+=')"
+          test -n "$API_URL" && test -n "$ANON_KEY" && test -n "$SERVICE_ROLE_KEY"
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+          } >> "$GITHUB_ENV"
+
+      - run: pnpm build
+
+      - name: Sign-in flows against the local Supabase (e-mails through Mailpit)
+        run: pnpm test:e2e auth
+
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: failure()
         with:
-          name: database-types
-          path: ${{ runner.temp }}/database.ts
+          name: supabase-job
+          path: |
+            ${{ runner.temp }}/database.ts
+            playwright-report/
           retention-days: 7

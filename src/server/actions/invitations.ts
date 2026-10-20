@@ -1,0 +1,58 @@
+"use server";
+
+import { requireRole } from "@/lib/auth/current-user";
+import { requestOrigin } from "@/lib/auth/origin";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { inviteClientUserSchema, type InviteClientUserInput } from "@/lib/validations/auth";
+import { invalid, type FormResult } from "@/lib/validations/form-result";
+
+/**
+ * Admin only: gives someone at a client company access to the client area. Supabase sends the
+ * invitation e-mail (supabase/templates/invite.html), which links to /convite; role and company
+ * go to app_metadata, which only the service role can write and the profile trigger reads.
+ */
+export async function inviteClientUser(
+  input: InviteClientUserInput,
+): Promise<FormResult<"clientId" | "email" | "name">> {
+  await requireRole("admin");
+  const parsed = inviteClientUserSchema.safeParse(input);
+  if (!parsed.success) return invalid(parsed.error);
+  const { clientId, email, name } = parsed.data;
+
+  const admin = createAdminClient();
+  const { data: client } = await admin
+    .from("clients")
+    .select("id")
+    .eq("id", clientId)
+    .maybeSingle();
+  if (!client) return { ok: false, fieldErrors: { clientId: "Essa empresa não existe mais." } };
+
+  const invited = await admin.auth.admin.inviteUserByEmail(email, {
+    data: { full_name: name },
+    redirectTo: `${await requestOrigin()}/auth/callback?next=/convite`,
+  });
+  if (invited.error) {
+    // only admins see this, so it may say that the e-mail is taken
+    if (invited.error.code === "email_exists") {
+      return { ok: false, fieldErrors: { email: "Esse e-mail já tem acesso." } };
+    }
+    console.error("[invite] not sent", { status: invited.error.status, code: invited.error.code });
+    return { ok: false, formError: "Não conseguimos enviar o convite. Tente de novo." };
+  }
+
+  const userId = invited.data.user.id;
+  const updated = await admin.auth.admin.updateUserById(userId, {
+    app_metadata: { role: "client", client_id: clientId },
+  });
+  if (updated.error) {
+    // without a company the account would be useless: undo the invitation
+    await admin.auth.admin.deleteUser(userId);
+    console.error("[invite] role not set", {
+      status: updated.error.status,
+      code: updated.error.code,
+    });
+    return { ok: false, formError: "Não conseguimos enviar o convite. Tente de novo." };
+  }
+
+  return { ok: true, message: `Convite enviado para ${email}.` };
+}
