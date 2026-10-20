@@ -17,7 +17,7 @@ Requisitos: Node 24 (LTS) e pnpm 11 (`corepack enable` instala a versão do `pac
 
 ```bash
 pnpm install
-cp .env.example .env.local   # preencha quando o Supabase e o Resend estiverem configurados
+cp .env.example .env.local   # opcional: sem Supabase o site roda no modo conteúdo
 pnpm dev                     # http://localhost:3000
 ```
 
@@ -30,8 +30,11 @@ pnpm dev                     # http://localhost:3000
 | `pnpm lint`                         | ESLint                                                                |
 | `pnpm typecheck`                    | gera os tipos de rota do Next (`next typegen`) e roda o `tsc`         |
 | `pnpm format` / `pnpm format:check` | Prettier (com ordenação das classes do Tailwind)                      |
-| `pnpm test`                         | testes unitários (Vitest)                                             |
+| `pnpm test`                         | testes unitários (Vitest), incluindo os de RLS no PGlite              |
 | `pnpm test:e2e`                     | testes de ponta a ponta (Playwright, no Chrome instalado na máquina)  |
+| `pnpm test:db`                      | só os testes de RLS (com `DATABASE_URL`, contra o Supabase local)     |
+| `pnpm db:types`                     | regenera `src/types/database.ts` a partir do Supabase local           |
+| `pnpm supabase …`                   | Supabase CLI (`start`, `stop`, `status`, `db reset`, `migration new`) |
 | `pnpm tokens`                       | regenera `src/styles/tokens.css` a partir de `src/styles/tokens.json` |
 
 Hooks do Git (Husky): o `pre-commit` roda ESLint e Prettier nos arquivos alterados
@@ -50,6 +53,43 @@ além do exemplo vai para o Git.
 | `SUPABASE_SERVICE_ROLE_KEY`     | chave de serviço do Supabase, **só no servidor**         |
 | `RESEND_API_KEY`                | envio de e-mails transacionais                           |
 | `EMAIL_FROM`                    | remetente dos e-mails, ex.: `SDG Labs <contato@dominio>` |
+
+Sem `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY`, o site roda no "modo conteúdo":
+o portfólio vem de `src/content/portfolio.ts` e o formulário de contato só registra no log. Serve
+para mexer no front sem Docker. Em produção (Vercel) o Supabase é obrigatório.
+
+## Banco de dados (Supabase)
+
+Tudo fica em `supabase/`: `config.toml`, `migrations/` (SQL versionado), `seed.sql` e `tests/`.
+
+```bash
+pnpm supabase start      # sobe o Supabase local (precisa de Docker)
+pnpm supabase status     # mostra a URL e as chaves para o .env.local
+pnpm supabase db reset   # recria o banco com as migrations e o seed
+pnpm db:types            # atualiza src/types/database.ts depois de mudar o schema
+```
+
+O seed cria duas contas para testar, ambas com a senha `sdglabs-local`:
+`admin@sdglabs.local` (admin) e `cliente@exemplo.local` (cliente, com um projeto na etapa 2). O
+Studio local fica em http://127.0.0.1:54323 e os e-mails do Auth em http://127.0.0.1:54324.
+
+Regras que o schema garante:
+
+- RLS em todas as tabelas. O admin lê e escreve tudo; o cliente só lê os projetos, as etapas, as
+  atualizações e as mídias da própria empresa; o visitante só lê o portfólio publicado e envia
+  leads; `project_tokens` só é acessível pelo servidor, com a service role.
+- O papel e a empresa do usuário vêm do `app_metadata` do Auth, que só a service role altera (o
+  `user_metadata` o próprio usuário pode editar). O perfil em `profiles` acompanha por trigger.
+- Cadastro aberto desligado: contas só por convite.
+- `advance_project_stage(project_id)` conclui a etapa atual, inicia a próxima e posta um "marco",
+  numa transação; `create_project_with_stages(...)` cria o projeto com as 5 etapas padrão.
+- Buckets: `portfolio` (público) e `project-media` (privado, arquivos em `<projeto>/<atualização>/`).
+- Realtime ligado em `projects`, `project_stages` e `project_updates`.
+
+Os testes em `supabase/tests/rls.test.ts` provam essas regras (um cliente não lê o projeto de
+outro, entre outras). Localmente rodam no PGlite, um Postgres em WebAssembly, sem Docker. No CI
+rodam contra o Postgres do Supabase local, e o CI também confere se `src/types/database.ts` bate
+com o schema.
 
 ## Design system
 

@@ -60,17 +60,19 @@ async function CaseStudy({ item }: { item: PortfolioItem }) {
           <h1 className="h2">{item.title}</h1>
           <p className="lead">{item.summary}</p>
         </header>
-        <div className="pf-hero">
-          <Image
-            src={item.cover.src}
-            alt={item.cover.alt}
-            fill
-            priority
-            sizes="(max-width: 1280px) 100vw, 1280px"
-            className={cn("pf-img", item.pixelArt && "pixelated")}
-            unoptimized={item.pixelArt}
-          />
-        </div>
+        {item.cover && (
+          <div className="pf-hero">
+            <Image
+              src={item.cover.src}
+              alt={item.cover.alt}
+              fill
+              priority
+              sizes="(max-width: 1280px) 100vw, 1280px"
+              className={cn("pf-img", item.pixelArt && "pixelated")}
+              unoptimized={item.pixelArt}
+            />
+          </div>
+        )}
         <div className="pf-body">
           <div className="pf-text">
             {item.body.map((paragraph, i) => (

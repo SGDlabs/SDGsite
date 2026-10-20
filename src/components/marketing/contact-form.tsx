@@ -18,6 +18,7 @@ const TYPES = [
 /** The prototype's contact form, validated with Zod on both sides and sent to a Server Action. */
 export function ContactForm() {
   const [sent, setSent] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -32,11 +33,13 @@ export function ContactForm() {
 
   async function onSubmit(values: Lead, event?: BaseSyntheticEvent) {
     const form = event?.target as HTMLFormElement | undefined;
+    setFormError(null);
     const result = await submitLead(values);
     if (!result.ok) {
-      for (const [field, message] of Object.entries(result.fieldErrors)) {
+      for (const [field, message] of Object.entries(result.fieldErrors ?? {})) {
         if (message) setError(field as "name" | "email", { message }, { shouldFocus: true });
       }
+      setFormError(result.formError ?? null);
       return;
     }
     setSent(true);
@@ -130,11 +133,12 @@ export function ContactForm() {
               </svg>
             </b>
             <div>
-              <strong>Mensagem registrada neste protótipo.</strong>No site final, ela entra no
-              painel de leads e a gente responde por e-mail.
+              <strong>Mensagem enviada.</strong>A gente responde por e-mail com as próximas etapas e
+              um horário para conversar.
             </div>
           </div>
         )}
+        {formError && <span className="err-msg">{formError}</span>}
       </div>
     </form>
   );

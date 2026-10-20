@@ -1,3 +1,5 @@
 allowBuilds:
   # Native binding comes from optionalDependencies; the postinstall is only a download fallback.
   unrs-resolver: false
+  # The Supabase CLI downloads its binary on install (pnpm supabase start / db reset / gen types).
+  supabase: true

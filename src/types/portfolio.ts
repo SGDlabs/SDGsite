@@ -23,14 +23,14 @@ export interface PortfolioItem {
   body: string[];
   category: PortfolioCategory;
   stack: string[];
-  cover: PortfolioImage;
+  cover?: PortfolioImage;
   gallery: PortfolioImage[];
   liveUrl?: string;
   featured: boolean;
-  /** ISO date; newest first. */
-  publishedAt: string;
-  /** Cover drawn on the landing carousel (the approved prototype's pixel art). */
-  generativeCover: GenerativeCover;
+  /** Listing order, ascending (sort_order in the database). */
+  sortOrder: number;
+  /** Pixel cover drawn on the landing carousel instead of the image (the prototype's art). */
+  generativeCover?: GenerativeCover;
   /** Pixel-art images keep hard edges: no resizing, image-rendering: pixelated. */
   pixelArt?: boolean;
 }
