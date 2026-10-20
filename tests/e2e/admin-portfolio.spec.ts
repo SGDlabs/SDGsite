@@ -74,12 +74,20 @@ test("an admin publishes a case that shows on the site, then takes it down", asy
 test("the order of the cases changes from the list", async ({ page, isMobile }) => {
   test.skip(isMobile, "the table is the same on every screen");
   await signInAs(page, "admin@sdglabs.local", "/admin/portfolio");
-  const titles = () => page.getByRole("row").locator("td:nth-child(2) a").allTextContents();
-  const before = await titles();
+  // rows by address: titles can repeat (the seed's are all placeholders)
+  const addresses = page.getByRole("row").getByText(/^\/portfolio\//);
+  await expect(addresses.first()).toBeVisible();
+  const order = () => addresses.allTextContents();
+  const before = await order();
   expect(before.length).toBeGreaterThan(1);
+  const row = (address: string) => page.getByRole("row").filter({ hasText: address });
 
-  await page.getByRole("button", { name: `Descer ${before[0]}` }).click();
-  await expect.poll(titles).toEqual([before[1], before[0], ...before.slice(2)]);
-  await page.getByRole("button", { name: `Subir ${before[0]}` }).click();
-  await expect.poll(titles).toEqual(before);
+  await row(before[0]!)
+    .getByRole("button", { name: /^Descer/ })
+    .click();
+  await expect.poll(order).toEqual([before[1], before[0], ...before.slice(2)]);
+  await row(before[0]!)
+    .getByRole("button", { name: /^Subir/ })
+    .click();
+  await expect.poll(order).toEqual(before);
 });
