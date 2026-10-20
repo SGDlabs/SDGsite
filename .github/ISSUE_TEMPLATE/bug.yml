@@ -1,0 +1,32 @@
+name: Bug
+description: Algo que não funciona como deveria.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: O que aconteceu
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: O que era esperado
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Como reproduzir
+      placeholder: "1. Abra…\n2. Clique em…"
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Onde
+      description: URL ou ambiente (produção, preview, local) e navegador/celular.
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Prints ou vídeo
