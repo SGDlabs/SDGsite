@@ -218,9 +218,8 @@ isOneToOne: false
 { Args: { "p_name": string }; Returns: boolean
                            },
 "claim_project_digest":
-{ Args: { "p_every"?: unknown,"p_project_id": string }; Returns: {
-              "allowed": boolean,
-"since": string
+{ Args: { "p_every"?: string,"p_project_id": string }; Returns: {
+              "allowed": boolean,"since": string
             }[]
                            },
 "create_project_with_stages":
