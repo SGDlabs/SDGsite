@@ -1,15 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
-import { adminClient, linkFromEmail, SEED, testEmail, withSupabase } from "./support/supabase";
+import { adminClient, linkFromEmail, signInAs, testEmail, withSupabase } from "./support/supabase";
 
 test.skip(!withSupabase, "needs the local Supabase (CI's Supabase job)");
 
-async function signInAsAdmin(page: Page, next = "/admin") {
-  await page.goto(`/login?next=${encodeURIComponent(next)}`);
-  await page.getByRole("textbox", { name: "E-mail" }).fill("admin@sdglabs.local");
-  await page.getByLabel("Senha", { exact: true }).fill(SEED.password);
-  await page.getByRole("button", { name: "Entrar" }).click();
-  await expect(page).toHaveURL(new RegExp(`${next.replace(/[?]/g, "\?")}$`));
-}
+const signInAsAdmin = (page: Page, next = "/admin") => signInAs(page, "admin@sdglabs.local", next);
 
 const cleanup: (() => PromiseLike<unknown>)[] = [];
 test.afterEach(async () => {

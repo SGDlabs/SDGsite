@@ -1,16 +1,11 @@
 import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
-import { adminClient, SEED, signedInClient, withSupabase } from "./support/supabase";
+import { adminClient, SEED, signedInClient, signInAs, withSupabase } from "./support/supabase";
 
 test.skip(!withSupabase, "needs the local Supabase (CI's Supabase job)");
 
-async function signInAsClient(page: Page, next = "/painel") {
-  await page.goto(`/login?next=${encodeURIComponent(next)}`);
-  await page.getByRole("textbox", { name: "E-mail" }).fill("cliente@exemplo.local");
-  await page.getByLabel("Senha", { exact: true }).fill(SEED.password);
-  await page.getByRole("button", { name: "Entrar" }).click();
-  await expect(page).toHaveURL(new RegExp(`${next.replace(/[?]/g, "\\?")}$`));
-}
+const signInAsClient = (page: Page, next = "/painel") =>
+  signInAs(page, "cliente@exemplo.local", next);
 
 /** A project of its own per test (created the way the admin does), removed at the end. */
 async function newProject(clientId = SEED.client) {

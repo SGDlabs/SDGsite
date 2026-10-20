@@ -1,3 +1,4 @@
+import { expect, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
 
 /** CI's Supabase job exports these from `supabase status`; the main job runs without a database. */
@@ -38,6 +39,15 @@ export async function signedInClient(email: string, password = SEED.password) {
   const { error } = await client.auth.signInWithPassword({ email, password });
   if (error) throw error;
   return client;
+}
+
+/** Signs in through /login and waits until the page that asked for it (`next`) is open. */
+export async function signInAs(page: Page, email: string, next: string) {
+  await page.goto(`/login?next=${encodeURIComponent(next)}`);
+  await page.getByRole("textbox", { name: "E-mail" }).fill(email);
+  await page.getByLabel("Senha", { exact: true }).fill(SEED.password);
+  await page.getByRole("button", { name: "Entrar" }).click();
+  await expect(page).toHaveURL((url) => `${url.pathname}${url.search}` === next);
 }
 
 /** A fresh address per test, so tests running side by side never share a mailbox. */
