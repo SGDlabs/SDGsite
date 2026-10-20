@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Label } from "./label";
 
@@ -10,7 +10,11 @@ export interface FieldControlProps {
 }
 
 interface FieldProps {
-  id: string;
+  /**
+   * Leave it out: a generated id stays unique even when Next keeps visited pages in the document
+   * (hidden with <Activity>), where a fixed id like "email" would repeat and break the label.
+   */
+  id?: string;
   label: string;
   hint?: string;
   error?: string;
@@ -22,7 +26,9 @@ interface FieldProps {
  * Label, control, hint and error message, wired together. The design system has no error color,
  * so an invalid control gets the `ink` outline and the message says what to fix.
  */
-export function Field({ id, label, hint, error, className, children }: FieldProps) {
+export function Field({ id: fixedId, label, hint, error, className, children }: FieldProps) {
+  const generatedId = useId();
+  const id = fixedId ?? generatedId;
   const hintId = hint ? `${id}-hint` : undefined;
   const errorId = error ? `${id}-error` : undefined;
   const describedBy = [hintId, errorId].filter(Boolean).join(" ") || undefined;

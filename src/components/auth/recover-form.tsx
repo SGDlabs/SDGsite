@@ -25,7 +25,7 @@ export function RecoverForm() {
   return (
     <form noValidate onSubmit={onSubmit} aria-busy={isSubmitting} className="flex flex-col gap-5">
       {formError && <Notice tone="alert">{formError}</Notice>}
-      <Field id="email" label="E-mail" error={errors.email?.message}>
+      <Field label="E-mail" error={errors.email?.message}>
         {(control) => (
           <Input {...control} type="email" autoComplete="email" {...register("email")} />
         )}

@@ -41,6 +41,7 @@ interface MailpitSearch {
 export async function linkFromEmail(to: string, path: string, timeout = 20_000): Promise<string> {
   const pattern = new RegExp(`href="([^"]*${path}\\?token_hash=[^"]+)"`);
   const deadline = Date.now() + timeout;
+  let seen = "nothing";
   while (Date.now() < deadline) {
     const search = await fetch(
       `${MAILPIT_URL}/api/v1/search?query=${encodeURIComponent(`to:"${to}"`)}`,
@@ -49,16 +50,15 @@ export async function linkFromEmail(to: string, path: string, timeout = 20_000):
     if (messages[0]) {
       const message = (await (
         await fetch(`${MAILPIT_URL}/api/v1/message/${messages[0].ID}`)
-      ).json()) as {
-        HTML: string;
-      };
+      ).json()) as { Subject: string; HTML: string };
       const href = message.HTML.match(pattern)?.[1];
       if (href) {
         const url = new URL(href.replaceAll("&amp;", "&"));
         return `${url.pathname}${url.search}`;
       }
+      seen = `"${message.Subject}": ${message.HTML.replace(/\s+/g, " ").slice(0, 600)}`;
     }
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
-  throw new Error(`no e-mail with a ${path} link reached ${to}`);
+  throw new Error(`no e-mail with a ${path} link reached ${to}; latest: ${seen}`);
 }

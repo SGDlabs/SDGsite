@@ -54,7 +54,16 @@ export function UserMenuButton({ name, email, initials, avatarUrl, isAdmin }: Us
             <DropdownMenuSeparator />
           </>
         )}
-        <DropdownMenuItem disabled={signingOut} onSelect={() => startSignOut(() => signOut())}>
+        <DropdownMenuItem
+          disabled={signingOut}
+          onSelect={() =>
+            startSignOut(async () => {
+              await signOut();
+              // a full load: nothing of the account stays in the router's memory
+              window.location.assign("/login");
+            })
+          }
+        >
           {signingOut ? "Saindo…" : "Sair"}
         </DropdownMenuItem>
       </DropdownMenuContent>

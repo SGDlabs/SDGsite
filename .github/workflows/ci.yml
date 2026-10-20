@@ -99,6 +99,10 @@ jobs:
       - name: Sign-in flows against the local Supabase (e-mails through Mailpit)
         run: pnpm test:e2e auth
 
+      - name: Supabase Auth logs
+        if: failure()
+        run: docker logs --tail 80 supabase_auth_sdg-site 2>&1 || true
+
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: failure()
         with:

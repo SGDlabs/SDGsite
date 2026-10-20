@@ -192,9 +192,9 @@ describe("acceptInvite", () => {
 });
 
 describe("signOut", () => {
-  it("ends the session on this device and goes to /login", async () => {
+  it("ends the session on this device", async () => {
     auth.signOut.mockResolvedValue({ error: null });
-    expect(await redirectOf(signOut())).toBe("/login");
+    await signOut();
     expect(auth.signOut).toHaveBeenCalledWith({ scope: "local" });
   });
 });

@@ -129,11 +129,12 @@ export async function acceptInvite(
   redirect(homeFor(roleFromClaims(user)));
 }
 
-/** User menu: ends the session on this device. */
+/**
+ * User menu: ends the session on this device. The menu then loads /login as a full page, so no
+ * page of the account stays in the browser's memory (Next keeps visited pages to come back to).
+ */
 export async function signOut() {
-  if (supabaseConfig) {
-    const supabase = await createClient();
-    await supabase.auth.signOut({ scope: "local" });
-  }
-  redirect("/login");
+  if (!supabaseConfig) return;
+  const supabase = await createClient();
+  await supabase.auth.signOut({ scope: "local" });
 }

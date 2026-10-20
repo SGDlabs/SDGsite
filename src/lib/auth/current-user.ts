@@ -24,11 +24,10 @@ export interface CurrentUser {
  * The role comes from `profiles`, the same row that row level security reads.
  */
 export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
-  if (!supabaseConfig) {
-    // still a request-time read, so pages behave the same with and without a database
-    await connection();
-    return null;
-  }
+  // request time only: the session check reads the clock (token expiry), which a prerender
+  // (or a prefetch of the page) must not do
+  await connection();
+  if (!supabaseConfig) return null;
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getClaims();

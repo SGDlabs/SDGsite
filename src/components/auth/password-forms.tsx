@@ -28,7 +28,7 @@ export function NewPasswordForm() {
   return (
     <form noValidate onSubmit={onSubmit} aria-busy={isSubmitting} className="flex flex-col gap-5">
       {formError && <Notice tone="alert">{formError}</Notice>}
-      <Field id="password" label="Nova senha" hint={PASSWORD_HINT} error={errors.password?.message}>
+      <Field label="Nova senha" hint={PASSWORD_HINT} error={errors.password?.message}>
         {(control) => (
           <Input
             {...control}
@@ -38,7 +38,7 @@ export function NewPasswordForm() {
           />
         )}
       </Field>
-      <Field id="confirm" label="Repita a nova senha" error={errors.confirm?.message}>
+      <Field label="Repita a nova senha" error={errors.confirm?.message}>
         {(control) => (
           <Input
             {...control}
@@ -70,10 +70,10 @@ export function InviteForm() {
   return (
     <form noValidate onSubmit={onSubmit} aria-busy={isSubmitting} className="flex flex-col gap-5">
       {formError && <Notice tone="alert">{formError}</Notice>}
-      <Field id="name" label="Seu nome" error={errors.name?.message}>
+      <Field label="Seu nome" error={errors.name?.message}>
         {(control) => <Input {...control} autoComplete="name" {...register("name")} />}
       </Field>
-      <Field id="password" label="Senha" hint={PASSWORD_HINT} error={errors.password?.message}>
+      <Field label="Senha" hint={PASSWORD_HINT} error={errors.password?.message}>
         {(control) => (
           <Input
             {...control}
@@ -83,7 +83,7 @@ export function InviteForm() {
           />
         )}
       </Field>
-      <Field id="confirm" label="Repita a senha" error={errors.confirm?.message}>
+      <Field label="Repita a senha" error={errors.confirm?.message}>
         {(control) => (
           <Input
             {...control}
