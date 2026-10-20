@@ -1,5 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
-import { adminClient, linkFromEmail, testEmail, withSupabase } from "./support/supabase";
+import {
+  adminClient,
+  anonClient,
+  linkFromEmail,
+  testEmail,
+  withSupabase,
+} from "./support/supabase";
 
 const SEED_PASSWORD = "sdglabs-local";
 const SIGN_IN_FAILED = "Não conseguimos entrar com esses dados. Confira o e-mail e a senha.";
@@ -77,6 +83,15 @@ test.describe("with Supabase", () => {
     await expect(page.getByText("Olá, Admin SDG Labs.")).toBeVisible();
     await page.goto("/painel");
     await expect(page).toHaveURL(/\/painel$/);
+  });
+
+  test("nobody signs up on their own: accounts come from invitations", async () => {
+    const { data, error } = await anonClient().auth.signUp({
+      email: testEmail("cadastro"),
+      password: "senha-qualquer-1",
+    });
+    expect(data.user).toBeNull();
+    expect(error?.code).toBe("signup_disabled");
   });
 
   test("a wrong password and an unknown e-mail get the same answer", async ({ page }) => {

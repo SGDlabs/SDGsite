@@ -16,6 +16,15 @@ export function adminClient() {
   );
 }
 
+/** Supabase as a visitor in the browser would see it: the public URL and anon key. */
+export function anonClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { persistSession: false, autoRefreshToken: false } },
+  );
+}
+
 /** A fresh address per test, so tests running side by side never share a mailbox. */
 export function testEmail(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@e2e.local`;
