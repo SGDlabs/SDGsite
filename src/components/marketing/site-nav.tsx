@@ -1,33 +1,54 @@
+import Link from "next/link";
+import type { ComponentProps } from "react";
 import { cssVars } from "./brand";
 import { NavLogo } from "./pixel-logo";
 
-const LINKS = [
-  { href: "#servicos", label: "Serviços" },
-  { href: "#processo", label: "Processo" },
-  { href: "#painel", label: "Painel do cliente" },
-  { href: "#portfolio", label: "Portfólio" },
-  { href: "#sobre", label: "Sobre" },
-];
+/** On the home page the nav scrolls to sections; elsewhere it links back to them. */
+function navLinks(onHome: boolean) {
+  const to = (hash: string) => (onHome ? hash : `/${hash}`);
+  return [
+    { href: to("#servicos"), label: "Serviços" },
+    { href: to("#processo"), label: "Processo" },
+    { href: to("#painel"), label: "Painel do cliente" },
+    { href: onHome ? "#portfolio" : "/portfolio", label: "Portfólio" },
+    { href: to("#sobre"), label: "Sobre" },
+  ];
+}
 
-export function SiteNav() {
+/** Hash links stay plain anchors (the landing script scrolls to them); page links use next/link. */
+function NavAnchor({ href, ...props }: ComponentProps<"a"> & { href: string }) {
+  return href.startsWith("#") ? <a href={href} {...props} /> : <Link href={href} {...props} />;
+}
+
+export function SiteNav({ onHome = false, current }: { onHome?: boolean; current?: string }) {
+  const links = navLinks(onHome);
+  const contact = onHome ? "#contato" : "/#contato";
   return (
     <>
       <header className="nav" id="nav">
         <div className="nav-inner">
-          <a href="#topo" className="brand" aria-label="SDG Labs, voltar ao início">
+          <NavAnchor
+            href={onHome ? "#topo" : "/"}
+            className="brand"
+            aria-label="SDG Labs, voltar ao início"
+          >
             <NavLogo />
-          </a>
+          </NavAnchor>
           <nav className="links" id="links" aria-label="Seções">
             <span className="hl" aria-hidden="true"></span>
-            {LINKS.map((link) => (
-              <a key={link.href} href={link.href}>
+            {links.map((link) => (
+              <NavAnchor
+                key={link.href}
+                href={link.href}
+                aria-current={current === link.href ? "page" : undefined}
+              >
                 {link.label}
-              </a>
+              </NavAnchor>
             ))}
           </nav>
-          <a href="#contato" className="btn btn-primary btn-sm nav-cta magnetic">
+          <NavAnchor href={contact} className="btn btn-primary btn-sm nav-cta magnetic">
             <span>Começar um projeto</span>
-          </a>
+          </NavAnchor>
           <button
             className="menu-btn"
             id="menuBtn"
@@ -40,14 +61,14 @@ export function SiteNav() {
         </div>
       </header>
       <div className="mobile-menu" id="mobileMenu" hidden>
-        {LINKS.map((link, i) => (
-          <a key={link.href} href={link.href} style={cssVars({ "--i": i })}>
+        {links.map((link, i) => (
+          <NavAnchor key={link.href} href={link.href} style={cssVars({ "--i": i })}>
             {link.label}
-          </a>
+          </NavAnchor>
         ))}
-        <a href="#contato" className="btn btn-primary" style={cssVars({ "--i": 5 })}>
+        <NavAnchor href={contact} className="btn btn-primary" style={cssVars({ "--i": 5 })}>
           <span>Começar um projeto</span>
-        </a>
+        </NavAnchor>
       </div>
     </>
   );

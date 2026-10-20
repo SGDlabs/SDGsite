@@ -12,6 +12,11 @@ export function startLanding(page: HTMLElement, SDGLogo: Engine, Lenis: typeof L
     r.querySelector(s) as T;
   const $$ = <T extends Element = HTMLElement>(s: string, r: ParentNode = page) =>
     Array.from(r.querySelectorAll<T>(s));
+  // Sections other than the nav, footer and page chrome may be missing (portfolio pages).
+  const $opt = <T extends Element = HTMLElement>(s: string, r: ParentNode = page) =>
+    r.querySelector<T>(s);
+  // Ids are looked up inside this page: a hidden previous page may still be in the DOM.
+  const byId = (id: string) => (id ? page.querySelector<HTMLElement>(`#${CSS.escape(id)}`) : null);
 
   const root = document.documentElement;
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -70,7 +75,7 @@ export function startLanding(page: HTMLElement, SDGLogo: Engine, Lenis: typeof L
       (e) => {
         const id = a.getAttribute("href") ?? "";
         if (id.length < 2) return;
-        const t = document.getElementById(id.slice(1));
+        const t = byId(id.slice(1));
         if (!t) return;
         e.preventDefault();
         closeMenu();
@@ -147,27 +152,27 @@ export function startLanding(page: HTMLElement, SDGLogo: Engine, Lenis: typeof L
 
   /* ---------- measurement ---------- */
   const fills = $$(".fill-text").map((el) => ({ el, top: 0 }));
-  const sectionsForNav = links.map((a) => ({
-    a,
-    el: document.getElementById((a.getAttribute("href") ?? "").slice(1)),
-    top: 0,
-  }));
-  const proc = $("#processo");
+  const sectionsForNav = links.map((a) => {
+    const href = a.getAttribute("href") ?? "";
+    // on other pages the nav points back to the home page, so there is nothing to track
+    return { a, el: href.startsWith("#") ? byId(href.slice(1)) : null, top: 0 };
+  });
+  const proc = $opt("#processo");
   const slides = $$(".pslide");
   const pts = $$(".pt");
-  const ptrack = $("#ptrack");
+  const ptrack = $opt("#ptrack");
   let procTop = 0;
   let procH = 0;
-  const device = $("#device");
+  const device = $opt("#device");
   let devTop = 0;
-  const works = $("#portfolio");
-  const wTrack = $("#wTrack");
-  const wVp = $("#wViewport");
+  const works = $opt("#portfolio");
+  const wTrack = $opt("#wTrack");
+  const wVp = $opt("#wViewport");
   let wTop = 0;
   let wOver = 0;
-  const wIdx = $("#wIdx");
-  const wBar = $("#wBar");
-  const mf = $("#mf");
+  const wIdx = $opt("#wIdx");
+  const wBar = $opt("#wBar");
+  const mf = $opt("#mf");
   let mfTop = 0;
   let mfH = 0;
   const tube = $("#tube");
@@ -178,23 +183,29 @@ export function startLanding(page: HTMLElement, SDGLogo: Engine, Lenis: typeof L
     vh = innerHeight;
     setPin();
     const pin = root.classList.contains("pin");
-    if (pin) {
-      wTrack.style.transform = "none";
-      wOver = Math.max(0, wTrack.offsetWidth - wVp.clientWidth);
-      works.style.height = vh + wOver + "px";
-    } else {
-      works.style.height = "";
-      wTrack.style.transform = "";
-      wOver = 0;
+    if (works && wTrack && wVp) {
+      if (pin) {
+        wTrack.style.transform = "none";
+        wOver = Math.max(0, wTrack.offsetWidth - wVp.clientWidth);
+        works.style.height = vh + wOver + "px";
+      } else {
+        works.style.height = "";
+        wTrack.style.transform = "";
+        wOver = 0;
+      }
     }
     fills.forEach((f) => (f.top = absTop(f.el)));
     sectionsForNav.forEach((s) => (s.top = s.el ? absTop(s.el) : 0));
-    procTop = absTop(proc);
-    procH = proc.offsetHeight;
-    devTop = absTop(device);
-    wTop = absTop(works);
-    mfTop = absTop(mf);
-    mfH = mf.offsetHeight;
+    if (proc) {
+      procTop = absTop(proc);
+      procH = proc.offsetHeight;
+    }
+    if (device) devTop = absTop(device);
+    if (works) wTop = absTop(works);
+    if (mf) {
+      mfTop = absTop(mf);
+      mfH = mf.offsetHeight;
+    }
     docH = document.documentElement.scrollHeight;
     if (!pin) {
       slides.forEach((s) => {
@@ -239,7 +250,7 @@ export function startLanding(page: HTMLElement, SDGLogo: Engine, Lenis: typeof L
       f.el.style.setProperty("--p", p.toFixed(3));
     });
     // process slides
-    if (root.classList.contains("pin")) {
+    if (proc && root.classList.contains("pin")) {
       const n = slides.length - 1;
       const p = clamp((y - procTop) / Math.max(1, procH - vh)) * n;
       slides.forEach((s, i) => {
@@ -263,17 +274,17 @@ export function startLanding(page: HTMLElement, SDGLogo: Engine, Lenis: typeof L
         li.classList.toggle("done", i < c);
         li.classList.toggle("current", i === c);
       });
-      ptrack.style.setProperty("--fill", (p / n).toFixed(4));
+      ptrack?.style.setProperty("--fill", (p / n).toFixed(4));
     }
     // client panel tilt
-    if (!reduce) {
+    if (device && !reduce) {
       const dp = clamp((vh * 0.95 - (devTop - y)) / (vh * 0.75));
       device.style.setProperty("--rx", ((1 - dp) * 26).toFixed(2) + "deg");
       device.style.setProperty("--sc", (0.86 + 0.14 * dp).toFixed(4));
       device.style.setProperty("--ty", ((1 - dp) * 30).toFixed(1) + "px");
     }
     // portfolio horizontal
-    if (wOver > 0) {
+    if (wOver > 0 && wTrack) {
       const wp = clamp((y - wTop) / wOver);
       wTrack.style.transform = "translate3d(" + (-wp * wOver).toFixed(1) + "px,0,0)";
       setWorks(wp);
@@ -288,20 +299,22 @@ export function startLanding(page: HTMLElement, SDGLogo: Engine, Lenis: typeof L
       });
     }
   }
+  // cards plus the closing call to action (5 in the prototype)
+  const worksTotal = wTrack ? wTrack.children.length : 5;
   function setWorks(p: number) {
-    wIdx.textContent = "0" + (1 + Math.round(p * 4));
-    wBar.style.setProperty("--wp", p.toFixed(4));
+    if (wIdx) wIdx.textContent = String(1 + Math.round(p * (worksTotal - 1))).padStart(2, "0");
+    wBar?.style.setProperty("--wp", p.toFixed(4));
   }
   function syncWorksScroll() {
-    if (wOver > 0) return;
+    if (!wVp || wOver > 0) return;
     const max = wVp.scrollWidth - wVp.clientWidth;
     setWorks(max > 0 ? wVp.scrollLeft / max : 0);
   }
-  wVp.addEventListener("scroll", syncWorksScroll, { passive: true, signal });
+  wVp?.addEventListener("scroll", syncWorksScroll, { passive: true, signal });
 
   // manifesto: the words are rendered as spans; arming dims the ones not reached yet
-  const mws = $$(".mw", mf);
-  mf.classList.add("armed");
+  const mws = mf ? $$(".mw", mf) : [];
+  mf?.classList.add("armed");
 
   // process: click a step to jump to it
   pts.forEach((li, i) => {
@@ -317,8 +330,10 @@ export function startLanding(page: HTMLElement, SDGLogo: Engine, Lenis: typeof L
 
   /* ---------- hero: pixel field ---------- */
   const field = (() => {
-    const c = $<HTMLCanvasElement>("#field");
-    const hero = $(".hero");
+    const found = $opt<HTMLCanvasElement>("#field");
+    const hero = $opt(".hero");
+    if (!found || !hero) return null;
+    const c = found;
     const ctx = c.getContext("2d")!;
     const G = 24;
     let W = 0;
@@ -427,31 +442,32 @@ export function startLanding(page: HTMLElement, SDGLogo: Engine, Lenis: typeof L
   /* ---------- hero: the experiment (logo animation) ---------- */
   // The engine has no destroy(), so each run draws on a fresh copy of the canvas and the original
   // goes back on cleanup: a previous player (React's dev double mount) keeps drawing off-screen.
-  const logoCanvas = $<HTMLCanvasElement>("#logoCanvas");
-  const logoCopy = logoCanvas.cloneNode(false) as HTMLCanvasElement;
-  logoCanvas.replaceWith(logoCopy);
-  const player = SDGLogo.mount(logoCopy, { theme: "site", background: false });
-  const benchTime = $("#benchTime");
+  const logoCanvas = $opt<HTMLCanvasElement>("#logoCanvas");
+  const logoCopy = logoCanvas ? (logoCanvas.cloneNode(false) as HTMLCanvasElement) : null;
+  if (logoCanvas && logoCopy) logoCanvas.replaceWith(logoCopy);
+  const player = logoCopy ? SDGLogo.mount(logoCopy, { theme: "site", background: false }) : null;
+  const benchTime = $opt("#benchTime");
   let benchStart = 0;
   let benchRunning = false;
   function runExperiment() {
+    if (!player) return;
     player.play();
     benchStart = performance.now();
     benchRunning = !reduce;
-    if (reduce) benchTime.textContent = "t = 5,2 s";
+    if (reduce && benchTime) benchTime.textContent = "t = 5,2 s";
   }
-  $("#replay").addEventListener("click", runExperiment, { signal });
+  $opt("#replay")?.addEventListener("click", runExperiment, { signal });
   function tickBench(now: number) {
-    if (!benchRunning) return;
+    if (!benchRunning || !benchTime) return;
     const t = Math.min((now - benchStart) / 1000, SDGLogo.T_END / 1000);
     benchTime.textContent = "t = " + t.toFixed(1).replace(".", ",") + " s";
     if (t >= SDGLogo.T_END / 1000) benchRunning = false;
   }
 
   /* ---------- services: spotlight cards ---------- */
-  const bento = $("#bento");
-  const cards = $$(".card", bento);
-  if (fine)
+  const bento = $opt("#bento");
+  const cards = bento ? $$(".card", bento) : [];
+  if (fine && bento)
     bento.addEventListener(
       "pointermove",
       (e) => {
@@ -465,9 +481,9 @@ export function startLanding(page: HTMLElement, SDGLogo: Engine, Lenis: typeof L
     );
 
   /* ---------- client panel: live feed ---------- */
-  const feed = $("#feed");
-  const toast = $("#toast");
-  const toastText = $("#toastText");
+  const feed = $opt("#feed");
+  const toast = $opt("#toast");
+  const toastText = $opt("#toastText");
   let showVisible = false;
   let feedI = 0;
   const NEXT: [string, FeedIcon, string][] = [
@@ -477,10 +493,12 @@ export function startLanding(page: HTMLElement, SDGLogo: Engine, Lenis: typeof L
     ["Ajustes na tela de login", "note", ""],
     ["Prints da área de pagamentos", "print", ""],
   ];
-  watch(
-    new IntersectionObserver((es) => (showVisible = es[0]!.isIntersecting), { threshold: 0.35 }),
-  ).observe(device);
+  if (device)
+    watch(
+      new IntersectionObserver((es) => (showVisible = es[0]!.isIntersecting), { threshold: 0.35 }),
+    ).observe(device);
   function pushFeed() {
+    if (!feed || !toast || !toastText) return;
     if (!showVisible || reduce || document.hidden) return;
     const it = NEXT[feedI++ % NEXT.length]!;
     const li = document.createElement("li");
@@ -510,7 +528,7 @@ export function startLanding(page: HTMLElement, SDGLogo: Engine, Lenis: typeof L
     toast.classList.add("show");
     later(() => toast.classList.remove("show"), 2200);
   }
-  const feedTimer = window.setInterval(pushFeed, 3400);
+  const feedTimer = feed ? window.setInterval(pushFeed, 3400) : 0;
 
   /* ---------- portfolio covers (generative pixel art) ---------- */
   function drawCover(c: HTMLCanvasElement, kind: string | null) {
@@ -646,10 +664,10 @@ export function startLanding(page: HTMLElement, SDGLogo: Engine, Lenis: typeof L
       () => {
         const item = b.closest(".acc-i")!;
         const open = !item.classList.contains("open");
-        const panel = document.getElementById(b.getAttribute("aria-controls") ?? "")!;
+        const panel = byId(b.getAttribute("aria-controls") ?? "");
         item.classList.toggle("open", open);
         b.setAttribute("aria-expanded", String(open));
-        panel.inert = !open;
+        if (panel) panel.inert = !open;
         later(measure, 520);
       },
       { signal },
@@ -671,8 +689,10 @@ export function startLanding(page: HTMLElement, SDGLogo: Engine, Lenis: typeof L
   /* ---------- contact: liquid surface ---------- */
   let liquidBoost = 0;
   const liquid = (() => {
-    const c = $<HTMLCanvasElement>("#liquid");
-    const sec = $("#contato");
+    const found = $opt<HTMLCanvasElement>("#liquid");
+    const sec = $opt("#contato");
+    if (!found || !sec) return null;
+    const c = found;
     const ctx = c.getContext("2d")!;
     const G = 8;
     let W = 0;
@@ -691,9 +711,9 @@ export function startLanding(page: HTMLElement, SDGLogo: Engine, Lenis: typeof L
       draw(0, true);
     }
     watch(new IntersectionObserver((es) => (visible = es[0]!.isIntersecting))).observe(sec);
-    const sub = $("#f-submit");
-    sub.addEventListener("pointerenter", () => (target = 1), { signal });
-    sub.addEventListener("pointerleave", () => (target = 0), { signal });
+    const sub = $opt("#f-submit");
+    sub?.addEventListener("pointerenter", () => (target = 1), { signal });
+    sub?.addEventListener("pointerleave", () => (target = 0), { signal });
     function draw(t: number, force = false) {
       if (!force && (!visible || reduce)) return;
       level += (target + liquidBoost - level) * 0.05;
@@ -748,7 +768,9 @@ export function startLanding(page: HTMLElement, SDGLogo: Engine, Lenis: typeof L
 
   /* ---------- footer: the name rises out of the liquid ---------- */
   const big = (() => {
-    const c = $<HTMLCanvasElement>("#bigword");
+    const found = $opt<HTMLCanvasElement>("#bigword");
+    if (!found) return null;
+    const c = found;
     const ctx = c.getContext("2d")!;
     let start = -1;
     const cells = SDGLogo.wordCells("site", 1, 1);
@@ -869,11 +891,11 @@ export function startLanding(page: HTMLElement, SDGLogo: Engine, Lenis: typeof L
       update(y, false);
     }
     if (!reduce) {
-      field.draw(now);
-      liquid.draw(now);
+      field?.draw(now);
+      liquid?.draw(now);
     }
     tickBench(now);
-    big.tick(now);
+    big?.tick(now);
     if (fine && !reduce) {
       cx = lerp(cx, tx, 0.22);
       cy = lerp(cy, ty, 0.22);
@@ -908,8 +930,8 @@ export function startLanding(page: HTMLElement, SDGLogo: Engine, Lenis: typeof L
     timers.forEach((id) => clearTimeout(id));
     observers.forEach((observer) => observer.disconnect());
     lenis?.destroy();
-    logoCopy.replaceWith(logoCanvas);
-    mf.classList.remove("armed");
+    if (logoCanvas && logoCopy) logoCopy.replaceWith(logoCanvas);
+    mf?.classList.remove("armed");
     root.classList.remove("js", "motion", "pin");
   };
 }

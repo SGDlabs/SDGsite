@@ -1,12 +1,10 @@
-// Placeholders until the real cases are in: the covers are generative pixel art drawn on load.
-const WORKS = [
-  { cover: "blocks", tag: "Site institucional" },
-  { cover: "wave", tag: "Aplicativo" },
-  { cover: "dither", tag: "Sistema sob medida" },
-  { cover: "rings", tag: "Integração" },
-];
+import Link from "next/link";
+import { getPortfolioItems } from "@/server/queries/portfolio";
+import { PORTFOLIO_CATEGORIES } from "@/types/portfolio";
 
-export function Portfolio() {
+/** The landing's horizontal portfolio: featured cases with the prototype's generative covers. */
+export async function Portfolio() {
+  const items = await getPortfolioItems({ featured: true });
   return (
     <section className="works" id="portfolio">
       <div className="w-sticky">
@@ -16,22 +14,22 @@ export function Portfolio() {
             Os projetos da SDG Labs entram aqui. Role para o lado para ver todos.
           </p>
           <span className="w-count" aria-hidden="true">
-            <b id="wIdx">01</b>/05
+            <b id="wIdx">01</b>/{String(items.length + 1).padStart(2, "0")}
           </span>
         </div>
         <div className="w-viewport" id="wViewport">
           <div className="w-track" id="wTrack">
-            {WORKS.map((work) => (
-              <a key={work.cover} className="work" href="#contato">
+            {items.map((item) => (
+              <Link key={item.slug} className="work" href={`/portfolio/${item.slug}`}>
                 <div className="w-cover">
-                  <canvas data-cover={work.cover} aria-hidden="true"></canvas>
+                  <canvas data-cover={item.generativeCover} aria-hidden="true"></canvas>
                 </div>
                 <div className="w-meta">
-                  <span className="w-tag">{work.tag}</span>
-                  <h3>[Nome do projeto]</h3>
-                  <p>[O que foi feito, em uma frase]</p>
+                  <span className="w-tag">{PORTFOLIO_CATEGORIES[item.category]}</span>
+                  <h3>{item.title}</h3>
+                  <p>{item.summary}</p>
                 </div>
-              </a>
+              </Link>
             ))}
             <a className="work cta" href="#contato">
               <h3>O próximo case pode ser o seu.</h3>

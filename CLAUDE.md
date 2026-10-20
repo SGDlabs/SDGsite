@@ -104,9 +104,18 @@ sombra acima valem para as outras áreas, não para a landing. Ao mexer nela, fi
 - Estilos em `src/app/(marketing)/landing.css`, com as variáveis próprias presas ao contêiner
   `.landing` (não vazam para as outras rotas). As fontes vêm do `next/font` no layout do grupo.
 - Marcação em `src/components/marketing/*.tsx` (uma seção por arquivo), renderizada no servidor.
-- Comportamento (Lenis, seções fixadas, canvas, cursor, feed, FAQ, formulário) em
-  `src/components/marketing/landing-script.ts`, ligado por `landing-effects.tsx`. É uma tradução
-  linha a linha do script do protótipo: mantenha os números.
+- Comportamento (Lenis, seções fixadas, canvas, cursor, feed, FAQ) em
+  `src/components/marketing/landing-script.ts`. É uma tradução linha a linha do script do
+  protótipo: mantenha os números. Cada seção é opcional, então o mesmo script serve a outras páginas.
+- Toda página do grupo `(marketing)` monta `<LandingPage>` (contêiner com `display: contents` que
+  roda o script só dentro dele), `<LandingChrome />`, `<SiteNav>` e `<SiteFooter>`; a home passa
+  `onHome` para os links virarem âncoras. Busque elementos dentro da página, nunca no `document`:
+  com `cacheComponents`, a página anterior pode continuar escondida no DOM com os mesmos ids.
+- O formulário de contato é `contact-form.tsx` (React Hook Form + Zod + Server Action
+  `submitLead`); ao enviar, dispara `LEAD_SENT_EVENT` para o líquido subir.
+- Portfólio: os casos ficam em `src/content/portfolio.ts` e as imagens em
+  `public/portfolio/<slug>/`; leia sempre por `src/server/queries/portfolio.ts`. O estudo de caso usa
+  `ensureStatic = "navigation"` para que um slug inexistente responda 404 de verdade.
 - O logo do menu e o ícone do painel são gerados pelo motor `sdg-logo.js` (`pixel-logo.tsx`), no
   tema `site` registrado em `brand.ts`.
 
