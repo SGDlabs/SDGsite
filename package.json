@@ -16,6 +16,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@hookform/resolvers": "5.9.1",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "lenis": "1.1.13",
@@ -24,6 +25,7 @@
     "radix-ui": "1.7.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "react-hook-form": "7.89.0",
     "server-only": "0.0.1",
     "tailwind-merge": "3.7.0",
     "zod": "4.6.5"

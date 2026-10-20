@@ -2,7 +2,7 @@
 // (https://claude.ai/artifact/SvwpheWa5bXpWWTwFMuNeg). Keep the numbers as they are: they are the design.
 import type LenisClass from "lenis";
 import type SDGLogo from "@/lib/brand/sdg-logo";
-import { FEED_ICONS, PAL, registerSiteTheme, type FeedIcon } from "./brand";
+import { FEED_ICONS, LEAD_SENT_EVENT, PAL, registerSiteTheme, type FeedIcon } from "./brand";
 
 type Engine = typeof SDGLogo;
 
@@ -657,34 +657,11 @@ export function startLanding(page: HTMLElement, SDGLogo: Engine, Lenis: typeof L
   });
 
   /* ---------- contact form ---------- */
-  const form = $<HTMLFormElement>("#form");
-  form.addEventListener(
-    "submit",
-    (e) => {
-      e.preventDefault();
-      let ok = true;
-      const name = $<HTMLInputElement>("#f-name");
-      const email = $<HTMLInputElement>("#f-email");
-      function setErr(input: HTMLInputElement, msgEl: HTMLElement, msg: string) {
-        (input.parentNode as HTMLElement).classList.toggle("err", !!msg);
-        input.setAttribute("aria-invalid", msg ? "true" : "false");
-        msgEl.textContent = msg;
-        if (msg) ok = false;
-      }
-      setErr(name, $("#e-name"), name.value.trim() ? "" : "Escreva seu nome.");
-      setErr(
-        email,
-        $("#e-email"),
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())
-          ? ""
-          : "Use um e-mail válido, como voce@empresa.com.br.",
-      );
-      if (!ok) {
-        (name.value.trim() ? email : name).focus();
-        return;
-      }
-      $("#formNote").innerHTML =
-        '<div class="form-ok"><b aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></b><div><strong>Mensagem registrada neste protótipo.</strong>No site final, ela entra no painel de leads e a gente responde por e-mail.</div></div>';
+  // Validation and sending live in ContactForm (React Hook Form + Zod + Server Action); a sent
+  // lead makes the liquid surge, as in the prototype.
+  page.addEventListener(
+    LEAD_SENT_EVENT,
+    () => {
       liquidBoost = 1.6;
       later(() => (liquidBoost = 0), 1800);
     },
