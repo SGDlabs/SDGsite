@@ -119,6 +119,24 @@ sombra acima valem para as outras áreas, não para a landing. Ao mexer nela, fi
 - O logo do menu e o ícone do painel são gerados pelo motor `sdg-logo.js` (`pixel-logo.tsx`), no
   tema `site` registrado em `brand.ts`.
 
+## Banco de dados (Supabase)
+
+- Schema só por migration: `pnpm supabase migration new <nome>` e SQL em `supabase/migrations/`.
+  Toda tabela nova tem RLS ligada e policies explícitas; funções `security definer` com
+  `set search_path = ''`.
+- Depois de mudar o schema: `pnpm db:types` (precisa do Supabase local) e teste em
+  `supabase/tests/rls.test.ts`. Sem Docker, `pnpm test` roda esses testes no PGlite, com
+  `supabase/tests/bootstrap.sql` imitando o que a plataforma fornece. O CI roda contra o Supabase
+  real e falha se `src/types/database.ts` não bater com o schema (o arquivo gerado fica como
+  artefato `database-types`).
+- Papel e empresa do usuário vêm do `app_metadata` do Auth (só a service role escreve). Nunca
+  conceda acesso por `user_metadata`.
+- Clientes do Supabase em `src/lib/supabase`: `server.ts` (sessão por cookies, RLS do usuário),
+  `client.ts` (navegador), `public.ts` (anônimo, sem cookies, para leituras públicas em
+  `"use cache"`) e `admin.ts` (service role, só no servidor e depois de `requireRole`).
+- Sem as variáveis do Supabase o site roda no modo conteúdo (`src/content`); quem lê dados deve
+  manter esse caminho funcionando enquanto ele existir.
+
 ## Estrutura de pastas
 
 ```text

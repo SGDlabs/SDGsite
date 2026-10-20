@@ -1,7 +1,8 @@
 import type { PortfolioItem } from "@/types/portfolio";
 
-// Placeholders from the approved prototype: replace with the real cases (text and images in
-// public/portfolio/<slug>/). Until then the images are the brand's generative pixel covers.
+// Used when Supabase is not configured (front-end work without a database). The same
+// placeholders are seeded into portfolio_items by supabase/seed.sql; real cases are managed in
+// the admin panel. Images live in public/portfolio/<slug>/: the prototype's pixel covers for now.
 const BODY = [
   "[O desafio: o que o cliente precisava e por quê.]",
   "[O que a SDG Labs fez, etapa por etapa.]",
@@ -12,7 +13,7 @@ function placeholder(
   slug: string,
   category: PortfolioItem["category"],
   generativeCover: PortfolioItem["generativeCover"],
-  publishedAt: string,
+  sortOrder: number,
 ): PortfolioItem {
   return {
     slug,
@@ -27,15 +28,15 @@ function placeholder(
       alt: `[Descrição da imagem ${n}]`,
     })),
     featured: true,
-    publishedAt,
+    sortOrder,
     generativeCover,
     pixelArt: true,
   };
 }
 
 export const portfolio: PortfolioItem[] = [
-  placeholder("projeto-site", "site", "blocks", "2026-04-01"),
-  placeholder("projeto-app", "app", "wave", "2026-03-01"),
-  placeholder("projeto-sistema", "sistema", "dither", "2026-02-01"),
-  placeholder("projeto-integracao", "integracao", "rings", "2026-01-01"),
+  placeholder("projeto-site", "site", "blocks", 1),
+  placeholder("projeto-app", "app", "wave", 2),
+  placeholder("projeto-sistema", "sistema", "dither", 3),
+  placeholder("projeto-integracao", "integracao", "rings", 4),
 ];

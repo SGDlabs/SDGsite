@@ -1,4 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import { getPortfolioItems } from "@/server/queries/portfolio";
 import { PORTFOLIO_CATEGORIES } from "@/types/portfolio";
 
@@ -22,7 +24,20 @@ export async function Portfolio() {
             {items.map((item) => (
               <Link key={item.slug} className="work" href={`/portfolio/${item.slug}`}>
                 <div className="w-cover">
-                  <canvas data-cover={item.generativeCover} aria-hidden="true"></canvas>
+                  {item.generativeCover ? (
+                    <canvas data-cover={item.generativeCover} aria-hidden="true"></canvas>
+                  ) : (
+                    item.cover && (
+                      <Image
+                        src={item.cover.src}
+                        alt={item.cover.alt}
+                        fill
+                        sizes="(max-width: 980px) 80vw, 470px"
+                        className={cn("pf-img", item.pixelArt && "pixelated")}
+                        unoptimized={item.pixelArt}
+                      />
+                    )
+                  )}
                 </div>
                 <div className="w-meta">
                   <span className="w-tag">{PORTFOLIO_CATEGORIES[item.category]}</span>

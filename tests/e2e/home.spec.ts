@@ -37,7 +37,7 @@ test("contact form validates and then confirms", async ({ page }) => {
   await page.getByRole("textbox", { name: "Nome", exact: true }).fill("Maria");
   await page.getByRole("textbox", { name: "E-mail", exact: true }).fill("maria@empresa.com.br");
   await submit.click();
-  await expect(page.getByText("Mensagem registrada neste protótipo.")).toBeVisible();
+  await expect(page.getByText("Mensagem enviada.")).toBeVisible();
 });
 
 test("mobile menu opens with the section links", async ({ page, isMobile }) => {

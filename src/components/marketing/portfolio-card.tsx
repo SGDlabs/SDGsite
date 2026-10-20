@@ -8,14 +8,16 @@ export function PortfolioCard({ item }: { item: PortfolioItem }) {
   return (
     <Link className="work" href={`/portfolio/${item.slug}`}>
       <div className="w-cover">
-        <Image
-          src={item.cover.src}
-          alt={item.cover.alt}
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 980px) 50vw, 33vw"
-          className={cn("pf-img", item.pixelArt && "pixelated")}
-          unoptimized={item.pixelArt}
-        />
+        {item.cover && (
+          <Image
+            src={item.cover.src}
+            alt={item.cover.alt}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 980px) 50vw, 33vw"
+            className={cn("pf-img", item.pixelArt && "pixelated")}
+            unoptimized={item.pixelArt}
+          />
+        )}
       </div>
       <div className="w-meta">
         <span className="w-tag">{PORTFOLIO_CATEGORIES[item.category]}</span>
