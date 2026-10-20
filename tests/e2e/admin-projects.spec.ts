@@ -84,7 +84,7 @@ test("an admin edits a stage and the project's dates", async ({ page }) => {
   await stage.getByRole("button", { name: "Salvar etapa" }).click();
   await expect(stage.getByText("Etapa salva.")).toBeVisible();
 
-  await page.getByLabel("Início").fill("2026-10-01");
+  await page.getByLabel("Início", { exact: true }).fill("2026-10-01");
   await page.getByRole("button", { name: "Salvar projeto" }).click();
   await expect(page.getByText("Projeto salvo.")).toBeVisible();
 
@@ -119,7 +119,7 @@ test("an admin posts prints that the client sees, then takes them down", async (
   await expect(page.getByLabel("Tipo", { exact: true })).toHaveValue("print");
   await page.getByRole("button", { name: "Publicar atualização" }).click();
   await expect(page.getByText("Atualização publicada.")).toBeVisible();
-  await expect(page.getByText("2 arquivos")).toBeVisible();
+  await expect(page.getByText(/· 2 arquivos$/)).toBeVisible();
 
   // the client, in a browser of their own
   const client = await (await browser.newContext()).newPage();
@@ -136,7 +136,7 @@ test("an admin posts prints that the client sees, then takes them down", async (
     .getByRole("dialog", { name: "Excluir “Telas novas”?" })
     .getByRole("button", { name: "Excluir" })
     .click();
-  await expect(page.getByText("2 arquivos")).toHaveCount(0);
+  await expect(page.getByText(/· 2 arquivos$/)).toHaveCount(0);
   // the files went with it (Storage has no empty folders)
   const { data: folders } = await adminClient().storage.from("project-media").list(project.id);
   expect(folders ?? []).toHaveLength(0);
