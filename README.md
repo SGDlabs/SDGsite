@@ -76,6 +76,14 @@ Para mudar uma cor, um raio ou um estilo de texto, atualize a cópia do `tokens.
 - Um assunto por PR, com print ou vídeo quando mexer em tela. A Vercel gera um preview por PR.
 - Tag `v0.x` a cada fase entregue; `v1.0.0` no lançamento.
 
+## CI
+
+O workflow `.github/workflows/ci.yml` roda em todo pull request e em todo push na `main`: instala
+com o lockfile congelado e roda lint, Prettier, typecheck, testes unitários, build e os testes de
+ponta a ponta (Playwright no Chrome do runner). Se os testes de ponta a ponta falharem, o relatório
+fica como artefato `playwright-report` por 7 dias. O Dependabot abre PRs semanais de dependências e
+de actions, só com versões publicadas há pelo menos duas semanas.
+
 ## Antes de publicar
 
 A landing ainda tem campos entre colchetes, vindos do protótipo, em `src/components/marketing/`:

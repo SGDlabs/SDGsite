@@ -1,0 +1,31 @@
+name: Funcionalidade
+description: Algo novo para o site, a área do cliente ou o painel admin.
+labels: [feature]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: O que é
+      description: O que deve existir e para quem.
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Pronto quando
+      description: Critérios para considerar a issue resolvida.
+      placeholder: "- O cliente vê…\n- O admin consegue…"
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área
+      options: [front, back, infra, design, conteudo]
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Referências
+      description: Prints, links, trechos do documento de arquitetura.
