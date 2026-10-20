@@ -165,9 +165,12 @@ Só para quem tem o papel admin, em `/admin`:
   cada) vão direto do navegador para o bucket privado, com barra de progresso, e a atualização
   com as mídias é gravada numa transação só (`publish_project_update`).
 
-O portfólio entra no próximo PR. Toda mutação é uma
-Server Action que valida com Zod, confere `requireRole("admin")` e grava com a sessão do admin, de
-modo que a RLS confere o papel de novo.
+- **Portfólio**: os casos de `/portfolio`, com ordem (subir e descer), publicado e destaque direto
+  na lista; criar, editar e excluir, com capa e galeria enviadas na hora para o bucket público
+  `portfolio`, texto alternativo por imagem e o endereço gerado a partir do título. Cada mudança
+  expira o cache do portfólio (`updateTag`), então o site mostra a versão nova no próximo acesso. Toda mutação é uma
+  Server Action que valida com Zod, confere `requireRole("admin")` e grava com a sessão do admin, de
+  modo que a RLS confere o papel de novo.
 
 ## Design system
 

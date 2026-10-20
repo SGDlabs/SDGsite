@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireRole } from "@/lib/auth/current-user";
 import { fromDateInput } from "@/lib/format";
+import { safeFileName } from "@/lib/slug";
 import { createClient } from "@/lib/supabase/server";
 import { invalid, type FormResult } from "@/lib/validations/form-result";
 import {
@@ -142,26 +143,6 @@ export async function advanceStage(input: { projectId: string }): Promise<FormRe
   };
 }
 
-/** A name Storage accepts and people can read: "Tela Inicial (1).PNG" → "tela-inicial-1.png". */
-function safeFileName(name: string, index: number) {
-  const dot = name.lastIndexOf(".");
-  const base = (dot > 0 ? name.slice(0, dot) : name)
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 60);
-  const extension =
-    dot > 0
-      ? name
-          .slice(dot + 1)
-          .toLowerCase()
-          .replace(/[^a-z0-9]/g, "")
-      : "";
-  return `${String(index + 1).padStart(2, "0")}-${base || "arquivo"}${extension ? `.${extension}` : ""}`;
-}
-
 export type UploadTicket = { path: string; signedUrl: string; contentType: string };
 
 /**
@@ -183,7 +164,8 @@ export async function prepareUpload(
   const supabase = await createClient();
   const uploads: UploadTicket[] = [];
   for (const [index, file] of parsed.data.files.entries()) {
-    const path = `${parsed.data.projectId}/${updateId}/${safeFileName(file.name, index)}`;
+    const name = `${String(index + 1).padStart(2, "0")}-${safeFileName(file.name)}`;
+    const path = `${parsed.data.projectId}/${updateId}/${name}`;
     const { data, error } = await supabase.storage.from(BUCKET).createSignedUploadUrl(path);
     if (error) return failure("upload not signed", error, "Não conseguimos preparar o envio.");
     uploads.push({ path, signedUrl: data.signedUrl, contentType: file.type });

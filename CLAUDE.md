@@ -186,6 +186,9 @@ sombra acima valem para as outras áreas, não para a landing. Ao mexer nela, fi
 - Ação que revalida a própria página: controle o "aguarde" com estado próprio que segue a promessa
   da action, não com `useTransition` (a transição espera a página re-renderizar e pode ficar
   presa). Ações difíceis de desfazer usam `ConfirmButton`.
+- Portfólio: toda mutação chama `updateTag(PORTFOLIO_TAG)` (o site lê os casos em `"use cache"`).
+  Imagens no bucket público `portfolio`, em `<id do caso>/`; `portfolioImageUrl` (`src/lib`) vale
+  no servidor e no navegador.
 - Upload: `prepareUpload` assina um upload por arquivo em `<projeto>/<atualização>/`, o navegador
   envia direto ao Storage (XHR, com progresso) e `publishUpdate` grava a atualização e as mídias
   juntas; se algo falhar no caminho, `discardUpload` apaga os arquivos.

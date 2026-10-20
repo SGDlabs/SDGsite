@@ -1,6 +1,7 @@
 import { cacheTag } from "next/cache";
 import { portfolio as contentPortfolio } from "@/content/portfolio";
 import { supabaseConfig } from "@/lib/env";
+import { portfolioImageUrl } from "@/lib/portfolio-image";
 import { createPublicClient } from "@/lib/supabase/public";
 import type { Json, Tables } from "@/types/database";
 import type {
@@ -14,12 +15,6 @@ import type {
 export const PORTFOLIO_TAG = "portfolio";
 
 const bySortOrder = (a: PortfolioItem, b: PortfolioItem) => a.sortOrder - b.sortOrder;
-
-/** A path in the public "portfolio" bucket, or a site path ("/portfolio/...") kept as is. */
-export function portfolioImageUrl(path: string) {
-  if (path.startsWith("/") || /^https?:\/\//.test(path) || !supabaseConfig) return path;
-  return `${supabaseConfig.url}/storage/v1/object/public/portfolio/${path}`;
-}
 
 function parseGallery(gallery: Json): PortfolioImage[] {
   if (!Array.isArray(gallery)) return [];

@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   images: {
+    // Next 16 refuses to optimize images from local addresses (SSRF). The local Supabase of
+    // development and CI is one; the patterns below still allow only its public bucket.
+    dangerouslyAllowLocalIP: ["127.0.0.1", "localhost"].includes(supabaseUrl?.hostname ?? ""),
     remotePatterns: supabaseUrl
       ? [
           {
