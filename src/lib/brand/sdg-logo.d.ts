@@ -1,7 +1,8 @@
 // Types for sdg-logo.js, the logo engine copied from the SDG Labs design system (Codigo asset group).
 
 declare namespace SDGLogo {
-  type Theme = "light" | "dark";
+  /** "light" and "dark" ship with the engine; pages may register more in THEMES. */
+  type Theme = "light" | "dark" | (string & {});
 
   interface Cell {
     x: number;

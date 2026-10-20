@@ -78,5 +78,12 @@ Para mudar uma cor, um raio ou um estilo de texto, atualize a cópia do `tokens.
 
 ## Antes de publicar
 
-- Trocar o e-mail de contato provisório em `src/lib/site.ts`.
-- Revisar os textos das seções em `src/components/marketing/`.
+A landing ainda tem campos entre colchetes, vindos do protótipo, em `src/components/marketing/`:
+
+- `contact.tsx`: e-mail e WhatsApp da SDG Labs.
+- `portfolio.tsx`: nome e descrição de cada projeto.
+- `about.tsx`: uma frase sobre cada sócio.
+- `faq.tsx`: a política de suporte depois da entrega.
+
+O formulário de contato só valida e mostra a confirmação; gravar o lead entra com o Supabase
+(prompt 6).

@@ -1,26 +1,30 @@
-import { Container } from "@/components/layout/container";
-import { Section } from "@/components/layout/section";
-import { SectionHeading } from "./section-heading";
+const TEAM = [
+  { letter: "G", name: "Gustavo", text: "[Uma frase sobre a sua área e experiência]" },
+  { letter: "D", name: "Daniel", text: "[Uma frase sobre a área e a experiência dele]" },
+];
 
 export function About() {
   return (
-    <Section id="quem-somos" tone="alt" aria-labelledby="quem-somos-title">
-      <Container>
-        {/* brand (indigo) is the supporting color for institutional blocks */}
-        <div className="grid gap-6 rounded-md bg-brand px-6 py-12 text-on-brand lg:grid-cols-2 lg:items-end lg:p-12">
-          <SectionHeading
-            id="quem-somos-title"
-            eyebrow="Lab 03 · Quem somos"
-            title="Uma software house de dois sócios"
-            tone="brand"
-            className="mb-0"
-          />
-          <p className="type-lead">
-            Você fala direto com quem desenha e programa o seu projeto, sem intermediários. A gente
-            trata cada projeto como um experimento bem conduzido: hipótese, teste e resultado.
+    <section className="sec" id="sobre" style={{ paddingTop: 0 }}>
+      <div className="wrap about">
+        <div>
+          <h2 className="h2 fill-text">Dois sócios, um laboratório</h2>
+          <p className="lead">
+            A SDG Labs é a software house do Gustavo e do Daniel. Quem fecha um projeto com a gente
+            fala direto com quem escreve o código.
           </p>
         </div>
-      </Container>
-    </Section>
+        <div className="team">
+          {TEAM.map((member) => (
+            <article key={member.name} className="member tilt">
+              <canvas data-letter={member.letter} aria-hidden="true"></canvas>
+              <h3>{member.name}</h3>
+              <span className="role">Sócio-fundador</span>
+              <p>{member.text}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }

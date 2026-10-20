@@ -76,6 +76,22 @@ de lá é a referência de voz, cores, tipografia, logo e animação.
 - Voz: primeira pessoa do plural ("a gente", "nós"), cliente tratado por "você", frases curtas, no
   máximo uma metáfora de laboratório por seção, sem emoji.
 
+## Landing page (exceção)
+
+A landing (`src/app/(marketing)`) reproduz exatamente o protótipo aprovado
+(https://claude.ai/artifact/SvwpheWa5bXpWWTwFMuNeg), que tem visual próprio: tema escuro único,
+Bricolage Grotesque + Geist, raios maiores, brilhos e gradientes. As regras de tokens, Tailwind e
+sombra acima valem para as outras áreas, não para a landing. Ao mexer nela, fique fiel ao protótipo.
+
+- Estilos em `src/app/(marketing)/landing.css`, com as variáveis próprias presas ao contêiner
+  `.landing` (não vazam para as outras rotas). As fontes vêm do `next/font` no layout do grupo.
+- Marcação em `src/components/marketing/*.tsx` (uma seção por arquivo), renderizada no servidor.
+- Comportamento (Lenis, seções fixadas, canvas, cursor, feed, FAQ, formulário) em
+  `src/components/marketing/landing-script.ts`, ligado por `landing-effects.tsx`. É uma tradução
+  linha a linha do script do protótipo: mantenha os números.
+- O logo do menu e o ícone do painel são gerados pelo motor `sdg-logo.js` (`pixel-logo.tsx`), no
+  tema `site` registrado em `brand.ts`.
+
 ## Estrutura de pastas
 
 ```text

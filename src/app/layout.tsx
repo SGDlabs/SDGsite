@@ -32,9 +32,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
+    // The landing's boot script adds classes to <html> before hydration (see (marketing)/layout.tsx).
     <html
       lang="pt-BR"
       className={`${display.variable} ${sans.variable} ${pixel.variable} ${mono.variable}`}
+      suppressHydrationWarning
     >
       <body>{children}</body>
     </html>
