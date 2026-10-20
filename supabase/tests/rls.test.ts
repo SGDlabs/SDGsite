@@ -127,6 +127,25 @@ describe("profiles", () => {
     expect(profile).toEqual({ client_id: ids.clientB });
     await db.sql(`delete from auth.users where id = $1`, [id]);
   });
+
+  it("take the name the user confirms, but nothing else, from user_metadata", async () => {
+    const id = randomUUID();
+    await addUser(id, { role: "client", client_id: ids.clientA }, { full_name: "Convidada" });
+    await db.sql(`update auth.users set raw_user_meta_data = $2 where id = $1`, [
+      id,
+      JSON.stringify({ full_name: "  Maria Souza ", role: "admin", client_id: ids.clientB }),
+    ]);
+    const [renamed] = await db.sql(
+      `select full_name, role, client_id from public.profiles where id = $1`,
+      [id],
+    );
+    expect(renamed).toEqual({ full_name: "Maria Souza", role: "client", client_id: ids.clientA });
+
+    await db.sql(`update auth.users set raw_user_meta_data = '{}' where id = $1`, [id]);
+    const [kept] = await db.sql(`select full_name from public.profiles where id = $1`, [id]);
+    expect(kept).toEqual({ full_name: "Maria Souza" });
+    await db.sql(`delete from auth.users where id = $1`, [id]);
+  });
 });
 
 describe("a client", () => {

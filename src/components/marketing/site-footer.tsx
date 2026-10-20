@@ -8,6 +8,8 @@ export function SiteFooter({ onHome = false }: { onHome?: boolean }) {
     { href: to("#painel"), label: "Painel do cliente" },
     { href: onHome ? "#portfolio" : "/portfolio", label: "Portfólio" },
     { href: to("#contato"), label: "Contato" },
+    // not in the prototype: the way into the client area
+    { href: "/login", label: "Entrar" },
   ];
   return (
     <footer className="foot">

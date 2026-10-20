@@ -45,14 +45,14 @@ Hooks do Git (Husky): o `pre-commit` roda ESLint e Prettier nos arquivos alterad
 Validadas com Zod em `src/lib/env.ts`. Copie `.env.example` para `.env.local`; nenhum `.env*`
 além do exemplo vai para o Git.
 
-| Variável                        | Onde é usada                                             |
-| ------------------------------- | -------------------------------------------------------- |
-| `NEXT_PUBLIC_SITE_URL`          | URL pública do site (links absolutos, Open Graph)        |
-| `NEXT_PUBLIC_SUPABASE_URL`      | URL do projeto Supabase                                  |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | chave pública do Supabase (protegida por RLS)            |
-| `SUPABASE_SERVICE_ROLE_KEY`     | chave de serviço do Supabase, **só no servidor**         |
-| `RESEND_API_KEY`                | envio de e-mails transacionais                           |
-| `EMAIL_FROM`                    | remetente dos e-mails, ex.: `SDG Labs <contato@dominio>` |
+| Variável                        | Onde é usada                                                |
+| ------------------------------- | ----------------------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL`          | URL pública do site (links absolutos, Open Graph)           |
+| `NEXT_PUBLIC_SUPABASE_URL`      | URL do projeto Supabase                                     |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | chave pública do Supabase (protegida por RLS)               |
+| `SUPABASE_SERVICE_ROLE_KEY`     | chave de serviço do Supabase, **só no servidor** (convites) |
+| `RESEND_API_KEY`                | envio de e-mails transacionais                              |
+| `EMAIL_FROM`                    | remetente dos e-mails, ex.: `SDG Labs <contato@dominio>`    |
 
 Sem `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY`, o site roda no "modo conteúdo":
 o portfólio vem de `src/content/portfolio.ts` e o formulário de contato só registra no log. Serve
@@ -91,6 +91,33 @@ outro, entre outras). Localmente rodam no PGlite, um Postgres em WebAssembly, se
 rodam contra o Postgres do Supabase local, e o CI também confere se `src/types/database.ts` bate
 com o schema.
 
+## Login e permissões
+
+Supabase Auth com e-mail e senha. Não existe cadastro aberto: a conta nasce de um convite.
+
+| Rota               | O que faz                                                                 |
+| ------------------ | ------------------------------------------------------------------------- |
+| `/login`           | e-mail e senha; volta para a página que pediu o login (`?next=`)          |
+| `/recuperar-senha` | envia o link para criar uma nova senha                                    |
+| `/redefinir-senha` | onde o link de recuperação chega: a pessoa escolhe a nova senha           |
+| `/convite`         | onde o link do convite chega: a pessoa confirma o nome e escolhe a senha  |
+| `/auth/callback`   | links dos templates padrão do Supabase (`?code=` ou `?token_hash=&type=`) |
+
+- `src/proxy.ts` renova a sessão e redireciona pelo papel: `/painel` exige login, `/admin` exige
+  admin, e quem já entrou sai de `/login` para a própria área. O admin também abre `/painel`.
+- Páginas e actions conferem de novo com `requireRole("admin" | "client")`, de
+  `src/lib/auth/current-user.ts`; `getCurrentUser()` devolve o usuário e o perfil. Quem decide o
+  acesso aos dados, no fim, é a RLS.
+- Convite: a action `inviteClientUser` (só admin) convida pelo Supabase e grava o papel e a
+  empresa no `app_metadata`. A tela de convite entra no painel admin (prompt 9).
+- As mensagens nunca revelam se um e-mail tem conta.
+- Os templates do convite e da recuperação ficam em `supabase/templates/` e levam direto para
+  `/convite` e `/redefinir-senha`. O token só é gasto quando o formulário é enviado, então os
+  antivírus de e-mail que abrem links não queimam o convite. Em produção, cole o assunto e o HTML
+  de cada um em Authentication > Emails no painel do Supabase.
+
+Localmente, com o Supabase rodando, os e-mails chegam no Mailpit (http://127.0.0.1:54324).
+
 ## Design system
 
 A marca vem do design system SDG Labs, e o README dele é a referência de voz, cores, tipografia e
@@ -120,8 +147,10 @@ Para mudar uma cor, um raio ou um estilo de texto, atualize a cópia do `tokens.
 
 O workflow `.github/workflows/ci.yml` roda em todo pull request e em todo push na `main`: instala
 com o lockfile congelado e roda lint, Prettier, typecheck, testes unitários, build e os testes de
-ponta a ponta (Playwright no Chrome do runner). Se os testes de ponta a ponta falharem, o relatório
-fica como artefato `playwright-report` por 7 dias. O Dependabot abre PRs semanais de dependências e
+ponta a ponta (Playwright no Chrome do runner), sem banco. Um segundo job sobe o Supabase local
+(Postgres, Auth e Mailpit), roda os testes de RLS, confere os tipos gerados e roda os testes de
+ponta a ponta do login: entrar, sair, permissões por papel, recuperar a senha e aceitar um convite
+pelos e-mails do Mailpit. Se algo falhar, o relatório fica como artefato por 7 dias. O Dependabot abre PRs semanais de dependências e
 de actions, só com versões publicadas há pelo menos duas semanas.
 
 ## Antes de publicar
@@ -135,6 +164,3 @@ A landing ainda tem campos entre colchetes, vindos do protótipo, em `src/compon
   prints reais, para o Next otimizar as imagens.
 - `about.tsx`: uma frase sobre cada sócio.
 - `faq.tsx`: a política de suporte depois da entrega.
-
-O formulário de contato só valida e mostra a confirmação; gravar o lead entra com o Supabase
-(prompt 6).
