@@ -54,7 +54,7 @@ test.describe("with Supabase", () => {
     await page.goto("/login");
     await signIn(page, "cliente@exemplo.local");
     await expect(page).toHaveURL(/\/painel$/);
-    await expect(page.getByText("Olá, Cliente Exemplo.")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Conta de Cliente Exemplo" })).toBeVisible();
 
     // signed in, /login and /admin lead back to the client area
     await page.goto("/login");
@@ -140,7 +140,7 @@ test.describe("with Supabase", () => {
       await page.getByLabel("Repita a nova senha").fill("senha-nova-1");
       await page.getByRole("button", { name: "Salvar e entrar" }).click();
       await expect(page).toHaveURL(/\/painel$/);
-      await expect(page.getByText("Olá, Rita Recupera.")).toBeVisible();
+      await expect(page.getByRole("button", { name: "Conta de Rita Recupera" })).toBeVisible();
 
       // the new password works, and the link is spent
       await page.getByRole("button", { name: "Conta de Rita Recupera" }).click();
@@ -174,7 +174,7 @@ test.describe("with Supabase", () => {
       await page.getByRole("button", { name: "Criar acesso" }).click();
       await expect(page).toHaveURL(/\/painel$/);
       // the name confirmed on /convite reached the profile
-      await expect(page.getByText("Olá, Maria Convidada.")).toBeVisible();
+      await expect(page.getByRole("button", { name: "Conta de Maria Convidada" })).toBeVisible();
 
       // an invitation works once
       await page.context().clearCookies();

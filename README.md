@@ -118,6 +118,38 @@ Supabase Auth com e-mail e senha. Não existe cadastro aberto: a conta nasce de 
 
 Localmente, com o Supabase rodando, os e-mails chegam no Mailpit (http://127.0.0.1:54324).
 
+## Área do cliente
+
+`/painel` lista os projetos de quem entrou (a RLS decide quais: os da empresa do cliente; todos,
+para o admin). `/painel/projetos/[id]` mostra a linha de etapas (clique numa etapa para ver a
+descrição e as datas) e o feed de atualizações, com filtro por etapa e por tipo, prints em
+galeria e vídeos no player do navegador. As mídias ficam no bucket privado `project-media` e
+chegam por links assinados gerados no servidor, válidos por uma hora.
+
+A página carrega no servidor e depois só escuta o Supabase Realtime (`useProjectRealtime`): quando
+o projeto, uma etapa ou o feed mudam, ela busca os dados de novo, sem recarregar, e avisa "Nova
+atualização". A bolinha anda sozinha quando vocês avançam a etapa.
+
+Para ver localmente, com o Supabase rodando:
+
+```bash
+pnpm db:seed-media   # sobe prints de exemplo para a atualização "Telas da página inicial"
+```
+
+Entre como `cliente@exemplo.local`, abra o projeto "App de agendamento" e, em outro terminal,
+avance a etapa como o admin faria (a função só roda para admins, então o script se passa pelo admin
+do seed):
+
+```bash
+pnpm supabase db query --local -f supabase/snippets/avancar-etapa.sql
+```
+
+Também dá para colar o mesmo SQL no SQL Editor do Studio (http://127.0.0.1:54323). A etapa 2 vira
+check, a linha enche até a 3, a 3 começa a pulsar e o feed ganha um "marco". `pnpm supabase db reset`
+volta tudo ao seed.
+
+Sem banco, a prévia interna `/design/area-do-cliente` mostra as mesmas telas com dados de exemplo.
+
 ## Design system
 
 A marca vem do design system SDG Labs, e o README dele é a referência de voz, cores, tipografia e
