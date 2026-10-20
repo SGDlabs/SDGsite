@@ -159,8 +159,13 @@ Só para quem tem o papel admin, em `/admin`:
   acesso ou a data do convite) e o botão "Convidar usuário".
 - **Leads**: o que chegou pelo formulário do site, com filtro e troca de status (novo, em contato,
   fechado, perdido) na própria tabela.
+- **Projetos**: lista com filtro por status e cliente; criar (já com as 5 etapas); editar nome,
+  datas e o nome e a descrição de cada etapa; "Concluir etapa e avançar", com confirmação; pausar,
+  retomar e concluir; e publicar atualizações. Os prints e vídeos (até 12 por atualização, 50 MB
+  cada) vão direto do navegador para o bucket privado, com barra de progresso, e a atualização
+  com as mídias é gravada numa transação só (`publish_project_update`).
 
-Projetos (com etapas e atualizações) e portfólio entram nos próximos PRs. Toda mutação é uma
+O portfólio entra no próximo PR. Toda mutação é uma
 Server Action que valida com Zod, confere `requireRole("admin")` e grava com a sessão do admin, de
 modo que a RLS confere o papel de novo.
 

@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 export const ADMIN_SECTIONS = [
   { href: "/admin", label: "Visão geral" },
   { href: "/admin/clientes", label: "Clientes" },
+  { href: "/admin/projetos", label: "Projetos" },
   { href: "/admin/leads", label: "Leads" },
 ];
 

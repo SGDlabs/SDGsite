@@ -207,6 +207,17 @@ describe("a client", () => {
     ).rejects.toThrow(/only admins/);
   });
 
+  it("cannot post to the feed, not even their own project's", async () => {
+    await expect(
+      db.as(ids.userA, (sql) =>
+        sql(`select public.publish_project_update($1, $2, null, 'nota', 'Oi')`, [
+          randomUUID(),
+          ids.projectA,
+        ]),
+      ),
+    ).rejects.toThrow(/only admins/);
+  });
+
   it("cannot read integration tokens", async () => {
     await expect(
       db.as(ids.userA, (sql) => sql(`select * from public.project_tokens`)),
@@ -270,6 +281,77 @@ describe("an admin", () => {
       { position: 4, title: "Testes e homologação", status: "pendente" },
       { position: 5, title: "Entrega e publicação", status: "pendente" },
     ]);
+  });
+
+  it("publishes an update with its media in one go", async () => {
+    const update = randomUUID();
+    const media = await db.as(ids.admin, async (sql) => {
+      await sql(
+        `select public.publish_project_update($1, $2, null, 'print', ' Telas ', '', $3::jsonb)`,
+        [
+          update,
+          ids.projectA,
+          JSON.stringify([
+            {
+              path: `${ids.projectA}/${update}/a.png`,
+              mime_type: "image/png",
+              width: 640,
+              height: 480,
+            },
+            { path: `${ids.projectA}/${update}/b.mp4`, mime_type: "video/mp4" },
+          ]),
+        ],
+      );
+      return {
+        update: await sql(
+          `select title, body, author_id from public.project_updates where id = $1`,
+          [update],
+        ),
+        media: await sql(
+          `select storage_path, width from public.update_media where update_id = $1 order by storage_path`,
+          [update],
+        ),
+      };
+    });
+    expect(media.update).toEqual([{ title: "Telas", body: null, author_id: ids.admin }]);
+    expect(media.media).toEqual([
+      { storage_path: `${ids.projectA}/${update}/a.png`, width: 640 },
+      { storage_path: `${ids.projectA}/${update}/b.mp4`, width: null },
+    ]);
+  });
+
+  it("cannot attach files from outside the update's folder", async () => {
+    const update = randomUUID();
+    await expect(
+      db.as(ids.admin, (sql) =>
+        sql(
+          `select public.publish_project_update($1, $2, null, 'print', 'Telas', null, $3::jsonb)`,
+          [
+            update,
+            ids.projectA,
+            JSON.stringify([
+              { path: `${ids.projectB}/${ids.updateB}/tela.png`, mime_type: "image/png" },
+            ]),
+          ],
+        ),
+      ),
+    ).rejects.toThrow(/outside the update folder/);
+  });
+
+  it("cannot post under another project's stage", async () => {
+    const [stage] = await db.sql<{ id: string }>(
+      `select id from public.project_stages where project_id = $1 limit 1`,
+      [ids.projectB],
+    );
+    await expect(
+      db.as(ids.admin, (sql) =>
+        sql(`select public.publish_project_update($1, $2, $3, 'nota', 'Nota')`, [
+          randomUUID(),
+          ids.projectA,
+          stage!.id,
+        ]),
+      ),
+    ).rejects.toThrow(/is not part of project/);
   });
 
   it("still cannot read integration tokens from the browser", async () => {

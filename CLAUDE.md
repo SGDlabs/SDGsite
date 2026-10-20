@@ -183,6 +183,12 @@ sombra acima valem para as outras áreas, não para a landing. Ao mexer nela, fi
 - Página sem dados (formulário em branco) fica estática e confere o papel com
   `<Suspense fallback={null}><AdminGuard /></Suspense>`.
 - Formulários que se repetem (convidar várias pessoas) usam `useActionForm(..., { resetOnSuccess })`.
+- Ação que revalida a própria página: controle o "aguarde" com estado próprio que segue a promessa
+  da action, não com `useTransition` (a transição espera a página re-renderizar e pode ficar
+  presa). Ações difíceis de desfazer usam `ConfirmButton`.
+- Upload: `prepareUpload` assina um upload por arquivo em `<projeto>/<atualização>/`, o navegador
+  envia direto ao Storage (XHR, com progresso) e `publishUpdate` grava a atualização e as mídias
+  juntas; se algo falhar no caminho, `discardUpload` apaga os arquivos.
 
 ## Estrutura de pastas
 

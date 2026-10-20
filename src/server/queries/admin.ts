@@ -211,3 +211,68 @@ export async function getLeads(status?: LeadStatus): Promise<LeadRow[]> {
     createdAtLabel: formatDateTime(lead.created_at),
   }));
 }
+
+export interface AdminProjectRow {
+  id: string;
+  name: string;
+  type: ProjectType;
+  status: ProjectStatus;
+  clientId: string;
+  clientName: string;
+  currentPosition: number;
+  stageCount: number;
+  currentTitle: string | undefined;
+  dueAtLabel: string | null;
+}
+
+/** /admin/projetos, newest first, optionally by status and client. */
+export async function getAdminProjects(filter: {
+  status?: ProjectStatus;
+  clientId?: string;
+}): Promise<AdminProjectRow[]> {
+  const supabase = await createClient();
+  let query = supabase
+    .from("projects")
+    .select(
+      "id, name, type, status, client_id, current_stage_position, due_at, clients (name), project_stages (position, title)",
+    )
+    .order("created_at", { ascending: false });
+  if (filter.status) query = query.eq("status", filter.status);
+  if (filter.clientId && z.uuid().safeParse(filter.clientId).success) {
+    query = query.eq("client_id", filter.clientId);
+  }
+  const { data, error } = await query;
+  if (error) throw fail("projects", error);
+  return data.map((row) => ({
+    id: row.id,
+    name: row.name,
+    type: row.type,
+    status: row.status,
+    clientId: row.client_id,
+    clientName: row.clients?.name ?? "",
+    currentPosition: row.current_stage_position,
+    stageCount: row.project_stages.length,
+    currentTitle: row.project_stages.find((s) => s.position === row.current_stage_position)?.title,
+    dueAtLabel: row.due_at ? formatDay(row.due_at) : null,
+  }));
+}
+
+/** Companies for a select: id and name. */
+export async function getClientOptions() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("clients").select("id, name").order("name");
+  if (error) throw fail("client options", error);
+  return data;
+}
+
+/** The client company behind a project, for the admin's project page. */
+export async function getProjectClient(projectId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("projects")
+    .select("client_id, clients (name)")
+    .eq("id", projectId)
+    .maybeSingle();
+  if (error) throw fail("project client", error);
+  return data ? { id: data.client_id, name: data.clients?.name ?? "" } : null;
+}

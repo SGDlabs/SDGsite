@@ -242,7 +242,25 @@ isOneToOne: false
                            },
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
-                           }
+                           },
+"publish_project_update":
+{ Args: { "p_body"?: string,"p_id": string,"p_kind": Database["public"]['Enums']["update_kind"],"p_media"?: Json,"p_project_id": string,"p_stage_id": string,"p_title": string }; Returns: {
+              "author_id": string | null,
+"body": string | null,
+"created_at": string,
+"id": string,
+"kind": Database["public"]['Enums']["update_kind"],
+"project_id": string,
+"source": Database["public"]['Enums']["update_source"],
+"stage_id": string | null,
+"title": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "project_updates"
+        isOneToOne: true
+        isSetofReturn: false
+      } }
           }
           Enums: {
             "lead_status": "novo"|"em_contato"|"fechado"|"perdido","portfolio_category": "site"|"app"|"sistema"|"integracao","project_status": "ativo"|"pausado"|"concluido","project_type": "site"|"app"|"sistema","stage_status": "pendente"|"em_andamento"|"concluida","update_kind": "nota"|"print"|"video"|"deploy"|"marco","update_source": "manual"|"api"|"github","user_role": "admin"|"client"
