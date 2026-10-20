@@ -75,6 +75,8 @@ beforeAll(async () => {
 
 afterAll(async () => {
   if (!db) return;
+  // Supabase Storage blocks direct deletes (use the API) unless this is set for the session.
+  await db.sql(`select set_config('storage.allow_delete_query', 'true', false)`);
   await db.sql(`delete from storage.objects where name like $1 or name like $2`, [
     `${ids.projectA}/%`,
     `${ids.projectB}/%`,
