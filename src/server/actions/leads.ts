@@ -1,14 +1,17 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { z } from "zod";
 import { requireRole } from "@/lib/auth/current-user";
+import { requestOrigin } from "@/lib/auth/origin";
 import { supabaseConfig } from "@/lib/env";
 import type { LeadStatus } from "@/lib/lead-labels";
 import { createClient } from "@/lib/supabase/server";
 import { createPublicClient } from "@/lib/supabase/public";
 import { invalid, type FormResult } from "@/lib/validations/form-result";
 import { leadSchema } from "@/lib/validations/lead";
+import { notifyNewLead } from "@/server/notifications";
 
 export type LeadResult =
   | { ok: true }
@@ -37,8 +40,12 @@ export async function submitLead(input: unknown): Promise<LeadResult> {
     messageLength: lead.message?.length ?? 0,
   };
 
+  const origin = await requestOrigin();
+  const notify = () => after(() => notifyNewLead({ lead, origin }));
+
   if (!supabaseConfig) {
     console.info("[lead] received (no database configured, not stored)", summary);
+    notify();
     return { ok: true };
   }
 
@@ -58,6 +65,7 @@ export async function submitLead(input: unknown): Promise<LeadResult> {
       formError: "Não conseguimos enviar agora. Tente de novo em alguns minutos.",
     };
   }
+  notify();
   return { ok: true };
 }
 

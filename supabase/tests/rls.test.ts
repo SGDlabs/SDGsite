@@ -480,3 +480,61 @@ describe("the integration API", () => {
     ).rejects.toThrow(/permission denied/);
   });
 });
+
+describe("e-mail preferences and digests", () => {
+  it("a user silences their own feed e-mails (the function takes no one else's id)", async () => {
+    const own = await db.as(ids.userA, async (sql) => {
+      await sql(`select public.set_my_email_preferences(false)`);
+      return sql(`select notify_updates from public.profiles where id = $1`, [ids.userA]);
+    });
+    expect(own).toEqual([{ notify_updates: false }]);
+  });
+
+  it("allows one digest per project every two hours, only with news", async () => {
+    const project = randomUUID();
+    await db.sql(
+      `insert into public.projects (id, client_id, name, type) values ($1, $2, 'Digest', 'site')`,
+      [project, ids.clientA],
+    );
+    const claim = () =>
+      db.sql<{ allowed: boolean }>(`select allowed from public.claim_project_digest($1)`, [
+        project,
+      ]);
+
+    // nothing new yet: no digest, and nothing reserved
+    expect(await claim()).toEqual([{ allowed: false }]);
+    await db.sql(
+      `insert into public.project_updates (project_id, kind, title) values ($1, 'marco', 'Etapa')`,
+      [project],
+    );
+    expect(await claim()).toEqual([{ allowed: false }]);
+
+    await db.sql(
+      `insert into public.project_updates (project_id, kind, title) values ($1, 'print', 'Telas')`,
+      [project],
+    );
+    expect(await claim()).toEqual([{ allowed: true }]);
+    // right after: too soon, even with news
+    await db.sql(
+      `insert into public.project_updates (project_id, kind, title) values ($1, 'nota', 'Mais')`,
+      [project],
+    );
+    expect(await claim()).toEqual([{ allowed: false }]);
+
+    // two hours later it may go again
+    await db.sql(
+      `update public.projects set digest_sent_at = now() - interval '3 hours' where id = $1`,
+      [project],
+    );
+    expect(await claim()).toEqual([{ allowed: true }]);
+    await db.sql(`delete from public.projects where id = $1`, [project]);
+  });
+
+  it("digests are claimed by the server only", async () => {
+    await expect(
+      db.as(ids.admin, (sql) =>
+        sql(`select * from public.claim_project_digest($1)`, [ids.projectA]),
+      ),
+    ).rejects.toThrow(/permission denied/);
+  });
+});

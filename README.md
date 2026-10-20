@@ -172,6 +172,28 @@ Só para quem tem o papel admin, em `/admin`:
   Server Action que valida com Zod, confere `requireRole("admin")` e grava com a sessão do admin, de
   modo que a RLS confere o papel de novo.
 
+## E-mails
+
+Templates em `src/emails/` (React, renderizados com `@react-email/render`) e envio pelo Resend em
+`src/lib/email/send.ts`. Sem `RESEND_API_KEY`, nada é enviado: o assunto vai para o log, então
+desenvolvimento e CI funcionam sem mandar e-mail.
+
+| E-mail               | Para quem                                 | Quando                                                    |
+| -------------------- | ----------------------------------------- | --------------------------------------------------------- |
+| Convite e nova senha | quem foi convidado / pediu                | pelo Supabase Auth (templates em `supabase/templates/`)   |
+| Etapa concluída      | as pessoas do cliente                     | quando o admin avança a etapa                             |
+| Novidades do projeto | as pessoas do cliente que não silenciaram | no máximo um por projeto a cada 2 horas, agrupando o feed |
+| Lead novo            | os sócios (`EMAIL_TEAM`)                  | quando alguém envia o formulário do site                  |
+
+- O resumo das novidades sai logo depois de uma publicação, se o último foi há mais de 2 horas; o
+  que chega dentro da janela vai na rodada de hora em hora (`/api/cron/digest`, chamada pelo
+  workflow `.github/workflows/digest.yml` com os segredos `SITE_URL` e `CRON_SECRET`). Marcos não
+  entram no resumo: eles têm o e-mail de etapa concluída.
+- O cliente silencia as novidades em `/painel/conta` (o aviso de etapa concluída chega sempre).
+- Em produção, aponte o SMTP do Supabase Auth para o Resend (Authentication > Emails > SMTP:
+  `smtp.resend.com`, porta 465, usuário `resend`, senha = a chave da API), para o convite e a
+  recuperação de senha saírem do mesmo domínio verificado.
+
 ## Integração com o projeto do cliente
 
 O repositório do cliente pode publicar no feed do projeto com um token gerado no admin (página do

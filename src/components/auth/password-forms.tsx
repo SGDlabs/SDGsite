@@ -13,8 +13,8 @@ const linkToken = () => new URLSearchParams(location.search).get("token_hash") ?
 
 const PASSWORD_HINT = "Pelo menos 8 caracteres.";
 
-/** /redefinir-senha: the new password, twice. */
-export function NewPasswordForm() {
+/** /redefinir-senha (and /painel/conta): the new password, twice. */
+export function NewPasswordForm({ submitLabel = "Salvar e entrar" }: { submitLabel?: string }) {
   const { form, onSubmit, formError } = useActionForm(
     newPasswordSchema,
     (values) => resetPassword({ ...values, tokenHash: linkToken() }),
@@ -49,7 +49,7 @@ export function NewPasswordForm() {
         )}
       </Field>
       <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Salvando…" : "Salvar e entrar"}
+        {isSubmitting ? "Salvando…" : submitLabel}
       </Button>
     </form>
   );

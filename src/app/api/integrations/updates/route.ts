@@ -1,11 +1,12 @@
 import { randomUUID } from "node:crypto";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { z } from "zod";
 import { takeRequest } from "@/lib/integration/rate-limit";
 import { bearerToken, hashToken } from "@/lib/integration/tokens";
-import { serverEnv, supabaseConfig } from "@/lib/env";
+import { publicEnv, serverEnv, supabaseConfig } from "@/lib/env";
 import { safeFileName } from "@/lib/slug";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendProjectDigest } from "@/server/notifications";
 import {
   integrationUpdateSchema,
   isApiMediaType,
@@ -135,6 +136,9 @@ export async function POST(request: Request) {
     console.error("[integration] update not published", { code: error.code });
     return problem(500, "internal_error", "Não conseguimos publicar. Tente de novo.");
   }
+
+  const origin = publicEnv.NEXT_PUBLIC_SITE_URL ?? new URL(request.url).origin;
+  after(() => sendProjectDigest({ projectId: stored.project_id, origin }));
 
   return NextResponse.json(
     {

@@ -92,6 +92,8 @@ jobs:
             echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
             echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"
             echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+            # for /api/cron/digest; e-mails are only logged (no RESEND_API_KEY)
+            echo "CRON_SECRET=ci-cron-secret-$GITHUB_RUN_ID"
           } >> "$GITHUB_ENV"
 
       - run: pnpm build
@@ -100,7 +102,7 @@ jobs:
       - run: pnpm db:seed-media
 
       - name: Sign-in, client area, admin and integration API against the local Supabase
-        run: pnpm test:e2e auth client-area admin integration
+        run: pnpm test:e2e auth client-area admin integration emails
 
       - name: The README's stage advance snippet works
         run: pnpm supabase db query --local -f supabase/snippets/avancar-etapa.sql
