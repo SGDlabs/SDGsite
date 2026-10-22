@@ -37,6 +37,9 @@ test("contact form validates and then confirms", async ({ page }) => {
   await page.getByRole("textbox", { name: "Nome", exact: true }).fill("Maria");
   await page.getByRole("textbox", { name: "E-mail", exact: true }).fill("maria@empresa.com.br");
   await submit.click();
+  await expect(page.getByText("Para enviar, aceite a Política de Privacidade.")).toBeVisible();
+  await page.getByRole("checkbox", { name: /Li e concordo com a Política de Privacidade/ }).check();
+  await submit.click();
   await expect(page.getByText("Mensagem enviada.")).toBeVisible();
 });
 

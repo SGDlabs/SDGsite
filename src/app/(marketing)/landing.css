@@ -461,7 +461,9 @@ html.motion .hero-title .w {
 }
 @keyframes rise {
   from {
-    opacity: 0;
+    /* 0.01, not 0: looks the same, but the browser counts the title as painted from the first
+       frame (an element at opacity 0 does not count for Largest Contentful Paint) */
+    opacity: 0.01;
     transform: translateY(42%) rotate(3deg);
     filter: blur(12px);
   }
@@ -1914,6 +1916,9 @@ html:not(.pin) .works {
   margin: 0;
   color: var(--muted);
 }
+.pf-empty[hidden] {
+  display: none;
+}
 .pf-back {
   display: inline-flex;
   margin-bottom: 28px;
@@ -2337,6 +2342,66 @@ html.motion .mf.armed .mw.on {
 }
 .field-w.err input {
   border-color: #e39b7b;
+}
+/* privacy policy and terms: long text in the landing's look */
+.legal-body {
+  max-width: 72ch;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.7;
+}
+.legal-body h2 {
+  margin: 48px 0 12px;
+  color: var(--ink);
+  font-family: var(--f-display);
+  font-size: 24px;
+  line-height: 1.25;
+}
+.legal-body h3 {
+  margin: 24px 0 8px;
+  color: var(--ink);
+  font-size: 17px;
+}
+.legal-body p,
+.legal-body ul {
+  margin: 0 0 16px;
+}
+.legal-body ul {
+  padding-left: 22px;
+}
+.legal-body li {
+  margin-bottom: 8px;
+}
+.legal-body a {
+  color: var(--glow);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.legal-note {
+  padding: 12px 16px;
+  border: 1px dashed var(--line-2);
+  border-radius: 10px;
+}
+.consent-box {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--muted);
+  cursor: pointer;
+}
+.consent-box input {
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--glow);
+  flex-shrink: 0;
+}
+.consent-box a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 .err-msg {
   font-size: 13px;

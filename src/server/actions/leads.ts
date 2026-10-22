@@ -17,7 +17,7 @@ export type LeadResult =
   | { ok: true }
   | {
       ok: false;
-      fieldErrors?: Partial<Record<"name" | "email", string>>;
+      fieldErrors?: Partial<Record<"name" | "email" | "consent", string>>;
       formError?: string;
     };
 
@@ -28,7 +28,11 @@ export async function submitLead(input: unknown): Promise<LeadResult> {
     const { fieldErrors } = z.flattenError(parsed.error);
     return {
       ok: false,
-      fieldErrors: { name: fieldErrors.name?.[0], email: fieldErrors.email?.[0] },
+      fieldErrors: {
+        name: fieldErrors.name?.[0],
+        email: fieldErrors.email?.[0],
+        consent: fieldErrors.consent?.[0],
+      },
     };
   }
 
@@ -57,6 +61,8 @@ export async function submitLead(input: unknown): Promise<LeadResult> {
       company: lead.company || null,
       message: lead.message || null,
       service_interest: lead.types,
+      // when the privacy policy was accepted: the record LGPD asks for
+      consent_at: new Date().toISOString(),
     });
   if (error) {
     console.error("[lead] could not be stored", { ...summary, code: error.code });

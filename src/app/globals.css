@@ -62,6 +62,12 @@
     text-underline-offset: 3px;
   }
 
+  /* links inside running text are underlined: color alone does not tell them apart (WCAG 1.4.1).
+     The landing has its own rules. */
+  :where(p, li) a:not(:where(.landing *)) {
+    text-decoration-line: underline;
+  }
+
   :focus-visible {
     outline: 2px solid var(--focus);
     outline-offset: 2px;

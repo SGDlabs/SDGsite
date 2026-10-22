@@ -247,3 +247,20 @@ A landing ainda tem campos entre colchetes, vindos do protótipo, em `src/compon
   prints reais, para o Next otimizar as imagens.
 - `about.tsx`: uma frase sobre cada sócio.
 - `faq.tsx`: a política de suporte depois da entrega.
+- `/privacidade` e `/termos` (`src/app/(marketing)/privacidade` e `termos`): rascunhos. Revise
+  com um advogado e preencha razão social, CNPJ, endereço, encarregado, prazos e foro.
+- `NEXT_PUBLIC_SITE_URL` com o domínio final: dele saem o sitemap, o robots, o Open Graph e os
+  dados estruturados.
+
+## SEO, acessibilidade e privacidade
+
+- Metadata por página, Open Graph gerado (`opengraph-image.tsx`), `sitemap.xml` com os casos
+  publicados, `robots.txt` fechando `/painel`, `/admin`, `/design`, `/api` e as páginas de login,
+  e dados estruturados `Organization` na home.
+- Testes de acessibilidade automáticos (axe, WCAG 2.1 AA) nas páginas públicas
+  (`tests/e2e/a11y.spec.ts`) e nas logadas (`a11y-signed-in.spec.ts`, no job do Supabase). A linha
+  de etapas anuncia "Etapa 2 de 5, Design, em andamento".
+- LGPD: o formulário de contato pede o aceite da Política de Privacidade e o lead guarda quando
+  (`consent_at`). Não há banner de cookies: o site público não usa cookies, a área do cliente usa
+  só o de sessão, e o Vercel Web Analytics não usa cookies.
+- Vercel Analytics e Speed Insights entram só quando o site roda na Vercel.
