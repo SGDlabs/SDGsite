@@ -233,6 +233,9 @@ sombra acima valem para as outras áreas, não para a landing. Ao mexer nela, fi
   Nunca `supabase config push` (o `config.toml` tem valores só para desenvolvimento e CI) nem seed
   em produção.
 - Variável de ambiente nova: em `src/lib/env.ts`, `.env.example` e na tabela de `docs/deploy.md`.
+- Cabeçalhos de segurança em `next.config.ts` (todas as respostas). A CSP não restringe scripts
+  (os inline do Next pediriam nonce, o que deixaria toda página dinâmica); se entrar um iframe,
+  um `<form>` para outro domínio ou um plugin, ajuste a CSP. Node 24 (`engines`).
 
 ## Estrutura de pastas
 

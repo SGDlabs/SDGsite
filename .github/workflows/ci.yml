@@ -38,7 +38,9 @@ jobs:
       - run: pnpm format:check
       - run: pnpm typecheck
       - run: pnpm test
-      - run: pnpm build
+      # one retry: next/font downloads the Google Fonts during the build, and that can flake
+      - name: Build
+        run: pnpm build || (echo "::warning::build failed, retrying once" && pnpm build)
 
       # Playwright runs on the Google Chrome that ships with the runner (channel "chrome").
       - run: pnpm test:e2e
@@ -96,7 +98,9 @@ jobs:
             echo "CRON_SECRET=ci-cron-secret-$GITHUB_RUN_ID"
           } >> "$GITHUB_ENV"
 
-      - run: pnpm build
+      # one retry: next/font downloads the Google Fonts during the build, and that can flake
+      - name: Build
+        run: pnpm build || (echo "::warning::build failed, retrying once" && pnpm build)
 
       # the README's local walkthrough: sample prints, then the stage advance (after the tests)
       - run: pnpm db:seed-media
