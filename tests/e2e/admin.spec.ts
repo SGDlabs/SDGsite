@@ -130,4 +130,21 @@ test("a lead from the site reaches the admin and moves along", async ({ page, is
   await expect(page.getByRole("row").filter({ hasText: email })).toBeVisible();
   const { data } = await service.from("leads").select("status").eq("email", email).single();
   expect(data?.status).toBe("em_contato");
+
+  // the sender asks for their data to be erased (LGPD)
+  await page
+    .getByRole("row")
+    .filter({ hasText: email })
+    .getByRole("button", { name: "Excluir" })
+    .click();
+  await page
+    .getByRole("dialog", { name: "Excluir o lead de Lead de Teste?" })
+    .getByRole("button", { name: "Excluir" })
+    .click();
+  await expect(page.getByRole("row").filter({ hasText: email })).toHaveCount(0);
+  const { count } = await service
+    .from("leads")
+    .select("id", { count: "exact", head: true })
+    .eq("email", email);
+  expect(count).toBe(0);
 });

@@ -102,3 +102,26 @@ export async function updateLeadStatus(input: {
   revalidatePath("/admin");
   return { ok: true };
 }
+
+/** Admin: erases a lead for good, when its sender asks (LGPD, art. 18) or its retention ends. */
+export async function deleteLead(input: { id: string }): Promise<FormResult> {
+  await requireRole("admin");
+  const parsed = z.object({ id: z.uuid() }).safeParse(input);
+  if (!parsed.success) return { ok: false, formError: "Esse lead não existe mais." };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("leads")
+    .delete()
+    .eq("id", parsed.data.id)
+    .select("id");
+  if (error) {
+    console.error("[lead] not deleted", { code: error.code });
+    return { ok: false, formError: "Não conseguimos excluir. Tente de novo." };
+  }
+  // nothing deleted: someone else got there first, or the id was never a lead
+  if (data.length === 0) return { ok: false, formError: "Esse lead não existe mais." };
+  revalidatePath("/admin/leads");
+  revalidatePath("/admin");
+  return { ok: true, message: "Lead excluído." };
+}
