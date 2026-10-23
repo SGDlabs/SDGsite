@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { NewPasswordForm } from "@/components/auth/password-forms";
+import { AccountNameForm } from "@/components/client/account-name-form";
 import { EmailPreferences } from "@/components/client/email-preferences";
 import { Container } from "@/components/layout/container";
 import { Card } from "@/components/ui/card";
@@ -31,15 +32,18 @@ async function Account() {
   const supabase = await createClient();
   const { data: profile } = await supabase
     .from("profiles")
-    .select("notify_updates")
+    .select("full_name, notify_updates")
     .eq("id", user.id)
     .single();
 
   return (
     <>
-      <Card className="gap-2">
-        <h2 className="type-h3">{user.name}</h2>
-        <p className="text-ink-muted">{user.email}</p>
+      <Card className="gap-4">
+        <h2 className="type-h3">Seus dados</h2>
+        <p className="text-ink-muted">
+          Você entra com {user.email}. Para trocar o e-mail, fale com a gente.
+        </p>
+        <AccountNameForm name={profile?.full_name ?? ""} />
       </Card>
       <Card className="gap-4">
         <h2 className="type-h3">E-mails</h2>

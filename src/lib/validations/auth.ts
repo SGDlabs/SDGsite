@@ -39,8 +39,12 @@ export const inviteClientUserSchema = z.object({
   name: nameField,
 });
 
+/** /painel/conta: the name shown in the menu and to the team. */
+export const accountNameSchema = z.object({ name: nameField });
+
 export type SignInInput = z.input<typeof signInSchema>;
 export type RecoverPasswordInput = z.input<typeof recoverPasswordSchema>;
 export type NewPasswordInput = z.input<typeof newPasswordSchema>;
 export type AcceptInviteInput = z.input<typeof acceptInviteSchema>;
 export type InviteClientUserInput = z.input<typeof inviteClientUserSchema>;
+export type AccountNameInput = z.input<typeof accountNameSchema>;
