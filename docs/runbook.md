@@ -21,7 +21,8 @@ pessoa (o botão some quando ela aceita). Ela recebe um e-mail novo, com outro l
 A pessoa saiu da empresa do cliente, ou o contrato acabou:
 
 1. **Admin > Clientes >** o cliente, em **Usuários**, **Remover acesso** ao lado da pessoa. A conta é
-   apagada com o perfil: ela deixa de ver os projetos na hora, mesmo com a sessão aberta.
+   apagada com o perfil: ela deixa de ver os projetos na hora, e a sessão aberta termina no próximo
+   acesso.
 2. Os projetos e o histórico da empresa continuam no admin. Para dar acesso de novo, convide outra
    vez.
 

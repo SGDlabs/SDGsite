@@ -107,8 +107,8 @@ export async function resendInvite(input: {
 
 /**
  * Admin: takes away someone's access to the client area (they left the company, the contract
- * ended). Deletes the Auth user: the profile goes with it, so from the next request on requireRole
- * no longer finds them and row level security gives them nothing, even while their token lasts.
+ * ended). Deletes the Auth user: the profile goes with it, so row level security gives them nothing
+ * even while their token lasts, and on their next request requireRole ends that session.
  */
 export async function removeClientUser(input: {
   userId: string;

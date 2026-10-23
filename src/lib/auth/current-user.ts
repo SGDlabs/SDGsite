@@ -54,11 +54,12 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
 
 /**
  * The signed-in user with that role, for Server Components and Server Actions. Without a session
- * it redirects to /login; with another role, to that role's home. Admins pass requireRole("client").
+ * or a profile it redirects to /login, through /auth/signout, which ends a session whose profile
+ * is gone; with another role, to that role's home. Admins pass requireRole("client").
  */
 export async function requireRole(role: Role): Promise<CurrentUser> {
   const user = await getCurrentUser();
-  if (!user) redirect("/login");
+  if (!user) redirect("/auth/signout");
   if (!hasRole(user.role, role)) redirect(homeFor(user.role));
   return user;
 }

@@ -95,7 +95,10 @@ test("an admin creates a client, invites someone and later takes the access away
     .click();
   await expect(person).toHaveCount(0);
   await guest.reload();
-  await expect(guest).toHaveURL(/\/login/);
+  await expect(guest).toHaveURL(/\/login$/);
+  // the session itself is gone, not just the profile: the proxy sends them to sign in
+  await guest.goto("/painel");
+  await expect(guest).toHaveURL(/\/login\?next=%2Fpainel$/);
   await guest.context().close();
 });
 
