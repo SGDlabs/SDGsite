@@ -3,6 +3,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Silkscreen, Space_Grotesk } from "next/font/google";
 import { site, siteUrl } from "@/lib/site";
+import { THEME_BOOT } from "@/lib/theme";
 import "./globals.css";
 
 // Each --nf-* variable feeds the matching --font-* token in src/styles/tokens.css. They are not
@@ -48,12 +49,17 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    // The landing's boot script adds classes to <html> before hydration (see (marketing)/layout.tsx).
+    // Boot scripts change <html> before hydration: the theme (below) and the landing's classes
+    // (see (marketing)/layout.tsx).
     <html
       lang="pt-BR"
       className={`${display.variable} ${sans.variable} ${pixel.variable} ${mono.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        {/* the theme picked in the user menu, applied before the first paint */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+      </head>
       <body>
         {children}
         {/* Vercel's cookieless analytics: only where Vercel serves the site (no 404s elsewhere) */}

@@ -196,3 +196,30 @@ test("a client fixes their name in the account, and the menu follows", async ({
     .single();
   expect(profile?.full_name).toBe("Ana Pereira");
 });
+
+test("the user menu switches to the dark theme, and it stays on the next visit", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, "the same menu on every screen");
+  await signInAsClient(page);
+  const html = page.locator("html");
+  const menu = page.getByRole("button", { name: "Conta de Cliente Exemplo" });
+
+  await menu.click();
+  await page.getByRole("menuitemradio", { name: "Escuro" }).click();
+  await expect(html).toHaveAttribute("data-theme", "dark");
+  // applied by the boot script on the next load, before React
+  await page.reload();
+  await expect(html).toHaveAttribute("data-theme", "dark");
+
+  await menu.click();
+  await expect(page.getByRole("menuitemradio", { name: "Escuro" })).toHaveAttribute(
+    "aria-checked",
+    "true",
+  );
+  await page.getByRole("menuitemradio", { name: "Igual ao aparelho" }).click();
+  await expect(html).not.toHaveAttribute("data-theme", /.*/);
+  await page.reload();
+  await expect(html).not.toHaveAttribute("data-theme", /.*/);
+});

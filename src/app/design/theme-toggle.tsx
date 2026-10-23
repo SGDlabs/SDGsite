@@ -1,26 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
+import { applyTheme, readTheme, subscribeTheme, type ThemeChoice } from "@/lib/theme";
 
-const OPTIONS = [
+const OPTIONS: { value: ThemeChoice; label: string }[] = [
   { value: "system", label: "Sistema" },
   { value: "light", label: "Claro" },
   { value: "dark", label: "Escuro" },
-] as const;
+];
 
-type Choice = (typeof OPTIONS)[number]["value"];
-
-/** Forces a theme through data-theme on <html> so both can be checked side by side. */
+/** Forces a theme so both can be checked side by side: the same choice as the user menu's. */
 export function ThemeToggle() {
-  const [choice, setChoice] = useState<Choice>("system");
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (choice === "system") root.removeAttribute("data-theme");
-    else root.setAttribute("data-theme", choice);
-    return () => root.removeAttribute("data-theme");
-  }, [choice]);
+  const choice = useSyncExternalStore(subscribeTheme, readTheme, () => "system" as const);
 
   return (
     <div role="group" aria-label="Tema" className="flex flex-wrap gap-2">
@@ -30,7 +22,7 @@ export function ThemeToggle() {
           size="sm"
           variant={choice === option.value ? "primary" : "outline"}
           aria-pressed={choice === option.value}
-          onClick={() => setChoice(option.value)}
+          onClick={() => applyTheme(option.value)}
         >
           {option.label}
         </Button>

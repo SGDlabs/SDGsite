@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useTransition } from "react";
+import { useSyncExternalStore, useTransition } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,10 +9,19 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { applyTheme, readTheme, subscribeTheme, THEMES, type ThemeChoice } from "@/lib/theme";
 import { signOut } from "@/server/actions/auth";
+
+const THEME_LABELS: Record<ThemeChoice, string> = {
+  system: "Igual ao aparelho",
+  light: "Claro",
+  dark: "Escuro",
+};
 
 interface UserMenuButtonProps {
   name: string;
@@ -22,9 +31,11 @@ interface UserMenuButtonProps {
   isAdmin: boolean;
 }
 
-/** Avatar and name; opens the account menu with the way out. */
+/** Avatar and name; opens the account menu with the theme and the way out. */
 export function UserMenuButton({ name, email, initials, avatarUrl, isAdmin }: UserMenuButtonProps) {
   const [signingOut, startSignOut] = useTransition();
+  // the server does not know the stored choice: it renders "system", the browser reads the real one
+  const theme = useSyncExternalStore(subscribeTheme, readTheme, () => "system" as const);
 
   return (
     <DropdownMenu>
@@ -54,9 +65,21 @@ export function UserMenuButton({ name, email, initials, avatarUrl, isAdmin }: Us
             <DropdownMenuItem asChild>
               <Link href="/painel">Área do cliente</Link>
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
           </>
         )}
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel className="type-small text-ink-muted">Tema</DropdownMenuLabel>
+        <DropdownMenuRadioGroup
+          value={theme}
+          onValueChange={(value) => applyTheme(value as ThemeChoice)}
+        >
+          {THEMES.map((option) => (
+            <DropdownMenuRadioItem key={option} value={option}>
+              {THEME_LABELS[option]}
+            </DropdownMenuRadioItem>
+          ))}
+        </DropdownMenuRadioGroup>
+        <DropdownMenuSeparator />
         <DropdownMenuItem
           disabled={signingOut}
           onSelect={() =>
