@@ -28,6 +28,15 @@ test("the overview shows projects, leads and the feed", async ({ page }) => {
   ).toHaveAttribute("aria-current", "page");
 });
 
+test("a client that does not exist shows the admin's 404, with the sidebar", async ({ page }) => {
+  await signInAsAdmin(page, "/admin/clientes/00000000-0000-4000-8000-000000000000");
+  await expect(page.getByRole("heading", { level: 1, name: "Não encontrado" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Admin" })).toBeVisible();
+  await page.getByRole("link", { name: "Voltar à visão geral" }).click();
+  await expect(page).toHaveURL(/\/admin$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Visão geral" })).toBeVisible();
+});
+
 test("an admin creates a client, invites someone and later takes the access away", async ({
   page,
   browser,

@@ -221,6 +221,8 @@ sombra acima valem para as outras áreas, não para a landing. Ao mexer nela, fi
   área privada: `robots: { index: false }` e o caminho em `src/app/robots.ts`.
 - Página nova: inclua em `tests/e2e/a11y.spec.ts` (pública) ou `a11y-signed-in.spec.ts` (logada).
   Links dentro de texto são sublinhados (WCAG 1.4.1).
+- 404 e erros: `app/not-found.tsx`, `error.tsx` e `global-error.tsx`, com `StatusPage`
+  (`components/layout/status-page.tsx`); o admin e a área do cliente têm os seus dentro do layout.
 - Fontes: o layout raiz não pré-carrega as do design system (a landing não usa); pré-carregue só o
   que aparece na primeira tela. A imagem que for o LCP ganha `loading="eager"` e
   `fetchPriority="high"`. Animação de entrada de conteúdo grande parte de `opacity: 0.01`, não 0.
