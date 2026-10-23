@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
 import { requireRole } from "@/lib/auth/current-user";
 import { requestOrigin } from "@/lib/auth/origin";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -55,4 +57,70 @@ export async function inviteClientUser(
   }
 
   return { ok: true, message: `Convite enviado para ${email}.` };
+}
+
+const accessSchema = z.object({ userId: z.uuid(), clientId: z.uuid() });
+
+/** The person, if they are a client user of that company (never an admin, never another company's). */
+async function clientUserOf(input: { userId: string; clientId: string }) {
+  const parsed = accessSchema.safeParse(input);
+  if (!parsed.success) return null;
+  const admin = createAdminClient();
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("id, role, client_id")
+    .eq("id", parsed.data.userId)
+    .maybeSingle();
+  if (!profile || profile.role !== "client" || profile.client_id !== parsed.data.clientId) {
+    return null;
+  }
+  const { data } = await admin.auth.admin.getUserById(profile.id);
+  return data.user ? { admin, user: data.user } : null;
+}
+
+/** Admin: sends the invitation again to someone who has not accepted it yet (it lasts 24 hours). */
+export async function resendInvite(input: {
+  userId: string;
+  clientId: string;
+}): Promise<FormResult> {
+  await requireRole("admin");
+  const found = await clientUserOf(input);
+  if (!found?.user.email) return { ok: false, formError: "Essa pessoa não é deste cliente." };
+  if (found.user.email_confirmed_at) {
+    return { ok: false, formError: "Essa pessoa já aceitou o convite." };
+  }
+
+  // for someone who has not confirmed yet, Supabase sends the invitation again
+  const { error } = await found.admin.auth.admin.inviteUserByEmail(found.user.email, {
+    data: found.user.user_metadata,
+    redirectTo: `${await requestOrigin()}/auth/callback?next=/convite`,
+  });
+  if (error) {
+    console.error("[invite] not resent", { status: error.status, code: error.code });
+    return { ok: false, formError: "Não conseguimos reenviar o convite. Tente de novo." };
+  }
+  revalidatePath(`/admin/clientes/${input.clientId}`);
+  return { ok: true, message: `Convite reenviado para ${found.user.email}.` };
+}
+
+/**
+ * Admin: takes away someone's access to the client area (they left the company, the contract
+ * ended). Deletes the Auth user: the profile goes with it, so the next request already finds no
+ * session, and row level security no longer gives them anything.
+ */
+export async function removeClientUser(input: {
+  userId: string;
+  clientId: string;
+}): Promise<FormResult> {
+  await requireRole("admin");
+  const found = await clientUserOf(input);
+  if (!found) return { ok: false, formError: "Essa pessoa não é deste cliente." };
+
+  const { error } = await found.admin.auth.admin.deleteUser(found.user.id);
+  if (error) {
+    console.error("[access] not removed", { status: error.status, code: error.code });
+    return { ok: false, formError: "Não conseguimos remover o acesso. Tente de novo." };
+  }
+  revalidatePath(`/admin/clientes/${input.clientId}`);
+  return { ok: true, message: "Acesso removido." };
 }
