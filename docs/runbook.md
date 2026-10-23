@@ -13,17 +13,21 @@ O que fazer em cada situação, passo a passo. A configuração inicial está em
 4. Se o repositório do cliente for publicar prints a cada deploy: na página do projeto,
    **Integração > Gerar token** e siga [integracao.md](integracao.md).
 
-Convite expirou? Convide de novo o mesmo e-mail: se o Supabase disser que o e-mail já existe, apague
-o usuário (próximo item) e convide outra vez.
+Convite expirou ou não chegou? Na página do cliente, em **Usuários**, **Reenviar convite** ao lado da
+pessoa (o botão some quando ela aceita). Ela recebe um e-mail novo, com outro link de 24 horas.
 
 ## Tirar o acesso de alguém
 
 A pessoa saiu da empresa do cliente, ou o contrato acabou:
 
-1. Supabase > **Authentication > Users**, procure o e-mail, **Delete user**. O perfil vai junto e a
-   sessão aberta para de funcionar na renovação seguinte (até 1 hora; para cortar na hora, use
-   **Sign out user** antes de apagar).
-2. Os projetos e o histórico da empresa continuam no admin.
+1. **Admin > Clientes >** o cliente, em **Usuários**, **Remover acesso** ao lado da pessoa. A conta é
+   apagada com o perfil: ela deixa de ver os projetos na hora, e a sessão aberta termina no próximo
+   acesso.
+2. Os projetos e o histórico da empresa continuam no admin. Para dar acesso de novo, convide outra
+   vez.
+
+Para tirar o acesso de um sócio (admin): Supabase > **Authentication > Users**, procure o e-mail,
+**Delete user**.
 
 ## Revogar um token de integração vazado
 
@@ -75,6 +79,15 @@ os dados é a RLS. Só troque se for trocar a de serviço junto.
    aparecem no feed. Prints que o banco restaurado cita mas que foram apagados depois aparecem
    quebrados; exclua essas atualizações no admin.
 4. Avise os clientes se alguma atualização sumiu.
+
+## Todo deploy falha na Vercel, até o de prévia
+
+1. Vercel > o projeto > **Settings > Build and Deployment**: **Root Directory** tem de estar em
+   branco (a raiz do repositório). O nome `sdgsite-scripts`, por exemplo, denuncia a subpasta
+   `scripts` escolhida na importação.
+2. Se só o de produção falha: confira as variáveis do Supabase em **Settings > Environment
+   Variables** (sem elas o build de produção para de propósito, ver [deploy.md](deploy.md)).
+3. **Deployments >** o último **> Redeploy**.
 
 ## O site quebrou depois de um deploy
 
