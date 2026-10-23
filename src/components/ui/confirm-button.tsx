@@ -52,7 +52,7 @@ export function ConfirmButton({
       <dialog
         ref={dialog}
         aria-labelledby={titleId}
-        className="m-auto w-[calc(100%-2rem)] max-w-md rounded-md border border-border-strong bg-surface p-6 text-ink shadow-pixel backdrop:bg-surface-inverse/60"
+        className="m-auto w-[calc(100%-2rem)] max-w-md rounded-md border border-border-strong bg-surface p-6 text-ink shadow-pixel backdrop:bg-grafite/60"
       >
         <h2 id={titleId} className="type-h3">
           {title}

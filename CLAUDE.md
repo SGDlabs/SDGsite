@@ -78,6 +78,10 @@ de lá é a referência de voz, cores, tipografia, logo e animação.
   contraste ali.
 - Voz: primeira pessoa do plural ("a gente", "nós"), cliente tratado por "você", frases curtas, no
   máximo uma metáfora de laboratório por seção, sem emoji.
+- Tema: segue o aparelho, ou a escolha do menu do usuário (Igual ao aparelho, Claro, Escuro),
+  guardada no navegador por `src/lib/theme.ts` e aplicada antes da primeira pintura pelo script do
+  layout raiz (`data-theme` no `<html>`). Fundo de diálogo e de galeria usa `grafite` fixo, não
+  `surface-inverse`, que fica branco no escuro.
 - A página interna `/design` (fora dos buscadores) mostra tokens, contraste e todos os componentes.
   O teste `src/lib/contrast.test.ts` garante os pares de texto em 4,5:1 nos dois temas.
 

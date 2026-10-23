@@ -8,6 +8,9 @@ import type { MediaView } from "@/server/queries/projects";
 // would cache each signed URL as a new image.
 /* eslint-disable @next/next/no-img-element */
 
+/** The lightbox's buttons, on its dark backdrop in both themes. */
+const ON_DARK = "bg-branco text-grafite hover:bg-nevoa";
+
 /** An update's prints: thumbnails that open a lightbox (native <dialog>, arrow keys to browse). */
 export function MediaGallery({ images, title }: { images: MediaView[]; title: string }) {
   const dialog = useRef<HTMLDialogElement>(null);
@@ -48,7 +51,8 @@ export function MediaGallery({ images, title }: { images: MediaView[]; title: st
       <dialog
         ref={dialog}
         aria-label={`Imagem ampliada: ${title}`}
-        className="m-auto max-h-dvh w-full max-w-5xl bg-transparent p-4 backdrop:bg-surface-inverse/90"
+        // always dark behind the image, in both themes: fixed palette colors, not the inverting tokens
+        className="m-auto max-h-dvh w-full max-w-5xl bg-transparent p-4 [--focus:var(--branco)] backdrop:bg-grafite/90"
         onKeyDown={(event) => {
           if (event.key === "ArrowRight") step(1);
           if (event.key === "ArrowLeft") step(-1);
@@ -63,21 +67,27 @@ export function MediaGallery({ images, title }: { images: MediaView[]; title: st
             className="max-h-[80dvh] w-full rounded-sm bg-surface object-contain"
           />
           <figcaption className="flex flex-wrap items-center justify-between gap-2">
-            <span className="type-small text-ink-inverse" aria-live="polite">
+            <span className="type-small text-branco" aria-live="polite">
               {images.length > 1 ? `${index + 1} de ${images.length}` : title}
             </span>
             <span className="flex gap-2">
               {images.length > 1 && (
                 <>
-                  <Button variant="inverse" size="sm" onClick={() => step(-1)}>
+                  <Button variant="inverse" size="sm" className={ON_DARK} onClick={() => step(-1)}>
                     Anterior
                   </Button>
-                  <Button variant="inverse" size="sm" onClick={() => step(1)}>
+                  <Button variant="inverse" size="sm" className={ON_DARK} onClick={() => step(1)}>
                     Próxima
                   </Button>
                 </>
               )}
-              <Button variant="inverse" size="sm" onClick={() => dialog.current?.close()} autoFocus>
+              <Button
+                variant="inverse"
+                size="sm"
+                className={ON_DARK}
+                onClick={() => dialog.current?.close()}
+                autoFocus
+              >
                 Fechar
               </Button>
             </span>
