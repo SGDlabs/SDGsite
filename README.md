@@ -228,13 +228,29 @@ Para mudar uma cor, um raio ou um estilo de texto, atualize a cópia do `tokens.
 
 ## CI
 
-O workflow `.github/workflows/ci.yml` roda em todo pull request e em todo push na `main`: instala
-com o lockfile congelado e roda lint, Prettier, typecheck, testes unitários, build e os testes de
-ponta a ponta (Playwright no Chrome do runner), sem banco. Um segundo job sobe o Supabase local
-(Postgres, Auth e Mailpit), roda os testes de RLS, confere os tipos gerados e roda os testes de
-ponta a ponta do login: entrar, sair, permissões por papel, recuperar a senha e aceitar um convite
-pelos e-mails do Mailpit. Se algo falhar, o relatório fica como artefato por 7 dias. O Dependabot abre PRs semanais de dependências e
-de actions, só com versões publicadas há pelo menos duas semanas.
+O workflow `.github/workflows/ci.yml` roda em todo pull request e em todo push na `main`:
+
+- **Lint, types, tests and build**: instala com o lockfile congelado e roda lint, Prettier,
+  typecheck, testes unitários, build e os testes de ponta a ponta sem banco (Playwright no Chrome
+  do runner), inclusive os de acessibilidade.
+- **Supabase**: sobe o Supabase local (Postgres, Auth, Realtime, Storage e Mailpit), roda os testes
+  de RLS, confere os tipos gerados e roda os testes de ponta a ponta com banco: login, convite e
+  senha pelos e-mails do Mailpit, área do cliente ao vivo, admin, API de integração, e-mails e
+  acessibilidade das telas logadas.
+
+Se algo falhar, o relatório fica como artefato por 7 dias. Outros workflows:
+
+- `migrations.yml`: aplica as migrations em produção a cada push na `main` que mexa nelas;
+- `digest.yml`: a rodada de hora em hora dos e-mails de novidades.
+
+O Dependabot abre PRs semanais de dependências e de actions, só com versões publicadas há pelo
+menos duas semanas.
+
+## Deploy
+
+O passo a passo do primeiro deploy (Supabase, Vercel, domínio, Resend e GitHub) está em
+[docs/deploy.md](docs/deploy.md), e os procedimentos do dia a dia (dar acesso a um cliente,
+revogar um token, trocar uma chave, restaurar um backup) em [docs/runbook.md](docs/runbook.md).
 
 ## Antes de publicar
 

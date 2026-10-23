@@ -225,6 +225,15 @@ sombra acima valem para as outras áreas, não para a landing. Ao mexer nela, fi
 - Sem banner de cookies enquanto não houver cookie além do de sessão; se entrar analytics com
   cookie, o banner vira obrigatório.
 
+## Deploy
+
+- Guia em `docs/deploy.md`, procedimentos em `docs/runbook.md`: ao mudar algo de infraestrutura
+  (variável de ambiente, configuração do Supabase, workflow), atualize os dois.
+- Migrations chegam à produção só pelo workflow `migrations.yml`, depois do merge na `main`.
+  Nunca `supabase config push` (o `config.toml` tem valores só para desenvolvimento e CI) nem seed
+  em produção.
+- Variável de ambiente nova: em `src/lib/env.ts`, `.env.example` e na tabela de `docs/deploy.md`.
+
 ## Estrutura de pastas
 
 ```text
