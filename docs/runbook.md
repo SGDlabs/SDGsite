@@ -29,6 +29,18 @@ A pessoa saiu da empresa do cliente, ou o contrato acabou:
 Para tirar o acesso de um sócio (admin): Supabase > **Authentication > Users**, procure o e-mail,
 **Delete user**.
 
+## Pedido de exclusão de dados (LGPD)
+
+Alguém pede que a SDG Labs apague os dados dele (art. 18 da LGPD; a política de privacidade promete
+resposta no prazo que ela mesma fixa):
+
+1. Quem só mandou mensagem pelo site: **Admin > Leads**, **Excluir** na linha da pessoa. Nome,
+   contato e mensagem saem do banco.
+2. Quem tem acesso à área do cliente: **Remover acesso** (seção anterior). A conta e o perfil saem;
+   os projetos e o feed são da empresa contratante e seguem o contrato.
+3. Os backups do Supabase guardam cópias por até 7 dias (seção Backups): diga isso na resposta.
+4. Responda à pessoa confirmando o que foi apagado.
+
 ## Revogar um token de integração vazado
 
 1. **Admin > Projetos >** o projeto **> Integração**, **Revogar** no token. A próxima chamada com ele
