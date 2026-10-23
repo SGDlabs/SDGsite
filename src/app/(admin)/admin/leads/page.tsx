@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { DeleteLead } from "@/components/admin/delete-lead";
 import { LeadStatusSelect } from "@/components/admin/lead-status-select";
 import { ListSkeleton, PageHeader } from "@/components/admin/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -108,7 +109,10 @@ async function Leads({ searchParams }: Pick<PageProps<"/admin/leads">, "searchPa
                   {lead.message ? <p className="whitespace-pre-line">{lead.message}</p> : "—"}
                 </TableCell>
                 <TableCell className="min-w-40">
-                  <LeadStatusSelect id={lead.id} status={lead.status} leadName={lead.name} />
+                  <div className="flex flex-col gap-2">
+                    <LeadStatusSelect id={lead.id} status={lead.status} leadName={lead.name} />
+                    <DeleteLead id={lead.id} leadName={lead.name} />
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
