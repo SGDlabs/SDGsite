@@ -33,6 +33,21 @@ test("case study shows the gallery in a lightbox", async ({ page }) => {
 test("unknown case answers 404", async ({ page }) => {
   const response = await page.goto("/portfolio/nao-existe");
   expect(response?.status()).toBe(404);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Página não encontrada" }),
+  ).toBeVisible();
+});
+
+test("an address the site does not have shows our 404 page, with ways out", async ({ page }) => {
+  const response = await page.goto("/pagina-que-nao-existe");
+  expect(response?.status()).toBe(404);
+  await expect(page).toHaveTitle("Página não encontrada · SDG Labs");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Página não encontrada" }),
+  ).toBeVisible();
+  await page.getByRole("link", { name: "Ver portfólio" }).click();
+  await expect(page).toHaveURL(/\/portfolio$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Portfólio" })).toBeVisible();
 });
 
 test("landing cards open the case study", async ({ page }) => {

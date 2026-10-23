@@ -14,6 +14,7 @@ const PAGES = [
   "/recuperar-senha",
   "/convite",
   "/design/area-do-cliente",
+  "/pagina-que-nao-existe",
 ];
 
 for (const path of PAGES) {
