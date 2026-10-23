@@ -1,6 +1,13 @@
 import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
-import { adminClient, SEED, signedInClient, signInAs, withSupabase } from "./support/supabase";
+import {
+  adminClient,
+  SEED,
+  signedInClient,
+  signInAs,
+  testEmail,
+  withSupabase,
+} from "./support/supabase";
 
 test.skip(!withSupabase, "needs the local Supabase (CI's Supabase job)");
 
@@ -155,4 +162,37 @@ test("a client cannot open another company's project", async ({ page }) => {
   await expect(page.getByText(project.name)).toHaveCount(0);
   await page.goto(`/painel/projetos/${project.id}`);
   await expect(page.getByRole("heading", { name: "Projeto não encontrado" })).toBeVisible();
+});
+
+test("a client fixes their name in the account, and the menu follows", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, "the same form on every screen");
+  // a client of their own: the seed's is shared with the other tests
+  const service = adminClient();
+  const { data } = await service.auth.admin.createUser({
+    email: testEmail("nome"),
+    password: SEED.password,
+    email_confirm: true,
+    user_metadata: { full_name: "Ana Pereria" },
+    app_metadata: { role: "client", client_id: SEED.client },
+  });
+  const user = data.user!;
+  cleanup.push(() => service.auth.admin.deleteUser(user.id));
+
+  await signInAs(page, user.email!, "/painel/conta");
+  const name = page.getByRole("textbox", { name: "Seu nome" });
+  await expect(name).toHaveValue("Ana Pereria");
+  await name.fill("Ana Pereira");
+  await page.getByRole("button", { name: "Salvar nome" }).click();
+  await expect(page.getByText("Nome salvo.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Conta de Ana Pereira" })).toBeVisible();
+
+  const { data: profile } = await service
+    .from("profiles")
+    .select("full_name")
+    .eq("id", user.id)
+    .single();
+  expect(profile?.full_name).toBe("Ana Pereira");
 });
