@@ -80,6 +80,15 @@ os dados é a RLS. Só troque se for trocar a de serviço junto.
    quebrados; exclua essas atualizações no admin.
 4. Avise os clientes se alguma atualização sumiu.
 
+## Todo deploy falha na Vercel, até o de prévia
+
+1. Vercel > o projeto > **Settings > Build and Deployment**: **Root Directory** tem de estar em
+   branco (a raiz do repositório). O nome `sdgsite-scripts`, por exemplo, denuncia a subpasta
+   `scripts` escolhida na importação.
+2. Se só o de produção falha: confira as variáveis do Supabase em **Settings > Environment
+   Variables** (sem elas o build de produção para de propósito, ver [deploy.md](deploy.md)).
+3. **Deployments >** o último **> Redeploy**.
+
 ## O site quebrou depois de um deploy
 
 1. Vercel > **Deployments**, no último deploy bom: **Instant Rollback**. Leva segundos.
