@@ -59,6 +59,20 @@ interface MailpitSearch {
   messages?: { ID: string }[];
 }
 
+/** The e-mails sent to `to` in the local mailbox (Mailpit), newest first. */
+async function mailTo(to: string) {
+  const search = await fetch(
+    `${MAILPIT_URL}/api/v1/search?query=${encodeURIComponent(`to:"${to}"`)}`,
+  );
+  const { messages = [] } = (await search.json()) as MailpitSearch;
+  return messages;
+}
+
+/** How many e-mails reached `to`, to tell a resent e-mail from the first one. */
+export async function emailCount(to: string) {
+  return (await mailTo(to)).length;
+}
+
 /**
  * The link to `path` in the latest e-mail sent to `to`, from the local mailbox (Mailpit), as a
  * path on the site under test: the templates use Supabase's site_url, port 3000.
@@ -68,10 +82,7 @@ export async function linkFromEmail(to: string, path: string, timeout = 20_000):
   const deadline = Date.now() + timeout;
   let seen = "nothing";
   while (Date.now() < deadline) {
-    const search = await fetch(
-      `${MAILPIT_URL}/api/v1/search?query=${encodeURIComponent(`to:"${to}"`)}`,
-    );
-    const { messages = [] } = (await search.json()) as MailpitSearch;
+    const messages = await mailTo(to);
     if (messages[0]) {
       const message = (await (
         await fetch(`${MAILPIT_URL}/api/v1/message/${messages[0].ID}`)

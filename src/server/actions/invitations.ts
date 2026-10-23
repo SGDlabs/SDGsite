@@ -56,6 +56,8 @@ export async function inviteClientUser(
     return { ok: false, formError: "Não conseguimos enviar o convite. Tente de novo." };
   }
 
+  // the person shows up in the list right away, with the buttons to resend or remove
+  revalidatePath(`/admin/clientes/${clientId}`);
   return { ok: true, message: `Convite enviado para ${email}.` };
 }
 
@@ -105,8 +107,8 @@ export async function resendInvite(input: {
 
 /**
  * Admin: takes away someone's access to the client area (they left the company, the contract
- * ended). Deletes the Auth user: the profile goes with it, so the next request already finds no
- * session, and row level security no longer gives them anything.
+ * ended). Deletes the Auth user: the profile goes with it, so from the next request on requireRole
+ * no longer finds them and row level security gives them nothing, even while their token lasts.
  */
 export async function removeClientUser(input: {
   userId: string;
