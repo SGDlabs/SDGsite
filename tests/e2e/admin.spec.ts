@@ -1,5 +1,12 @@
 import { expect, test, type Page } from "@playwright/test";
-import { adminClient, linkFromEmail, signInAs, testEmail, withSupabase } from "./support/supabase";
+import {
+  adminClient,
+  emailCount,
+  linkFromEmail,
+  signInAs,
+  testEmail,
+  withSupabase,
+} from "./support/supabase";
 
 test.skip(!withSupabase, "needs the local Supabase (CI's Supabase job)");
 
@@ -21,7 +28,7 @@ test("the overview shows projects, leads and the feed", async ({ page }) => {
   ).toHaveAttribute("aria-current", "page");
 });
 
-test("an admin creates a client and invites someone who then signs in", async ({
+test("an admin creates a client, invites someone and later takes the access away", async ({
   page,
   browser,
   isMobile,
@@ -53,14 +60,24 @@ test("an admin creates a client and invites someone who then signs in", async ({
   await page.getByRole("textbox", { name: "E-mail", exact: true }).fill(email);
   await page.getByRole("button", { name: "Convidar usuário" }).click();
   await expect(page.getByText(`Convite enviado para ${email}.`)).toBeVisible();
-  await expect(page.getByText(email).last()).toBeVisible();
+  const person = page.getByRole("listitem").filter({ hasText: email });
+  await expect(person).toContainText("Convite enviado em");
 
   const { data: users } = await service.auth.admin.listUsers({ perPage: 1000 });
   const invited = users.users.find((user) => user.email === email);
   if (invited) cleanup.push(() => service.auth.admin.deleteUser(invited.id));
   expect(invited?.app_metadata).toMatchObject({ role: "client", client_id: clientId });
 
-  // the invited person, in a browser of their own
+  // the first e-mail got lost: the admin sends the invitation again
+  await person.getByRole("button", { name: "Reenviar convite" }).click();
+  await page
+    .getByRole("dialog", { name: `Reenviar o convite para ${email}?` })
+    .getByRole("button", { name: "Reenviar" })
+    .click();
+  await expect(person.getByText(`Convite reenviado para ${email}.`)).toBeVisible();
+  await expect.poll(() => emailCount(email)).toBe(2);
+
+  // the invited person, in a browser of their own, from the latest e-mail
   const guest = await (await browser.newContext()).newPage();
   await guest.goto(await linkFromEmail(email, "/convite"));
   await guest.getByRole("textbox", { name: "Seu nome" }).fill("Pessoa Convidada");
@@ -69,6 +86,19 @@ test("an admin creates a client and invites someone who then signs in", async ({
   await guest.getByRole("button", { name: "Criar acesso" }).click();
   await expect(guest).toHaveURL(/\/painel$/);
   await expect(guest.getByText("Nenhum projeto por aqui ainda.")).toBeVisible();
+
+  // they leave the company: the admin removes the access, and the open session stops working
+  await person.getByRole("button", { name: "Remover acesso" }).click();
+  await page
+    .getByRole("dialog", { name: "Remover o acesso de Pessoa Convidada?" })
+    .getByRole("button", { name: "Remover acesso" })
+    .click();
+  await expect(person).toHaveCount(0);
+  await guest.reload();
+  await expect(guest).toHaveURL(/\/login$/);
+  // the session itself is gone, not just the profile: the proxy sends them to sign in
+  await guest.goto("/painel");
+  await expect(guest).toHaveURL(/\/login\?next=%2Fpainel$/);
   await guest.context().close();
 });
 

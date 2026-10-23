@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ClientForm } from "@/components/admin/client-form";
+import { ClientUserActions } from "@/components/admin/client-user-actions";
 import { InviteUserForm } from "@/components/admin/invite-user-form";
 import { ListSkeleton, PageHeader, Panel } from "@/components/admin/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -102,11 +103,17 @@ async function Users({ clientId }: { clientId: string }) {
   return (
     <ul className="flex flex-col divide-y divide-border">
       {users.map((user) => (
-        <li key={user.id} className="flex flex-col gap-0.5 py-3 first:pt-0 last:pb-0">
-          <span className="type-label">{user.name ?? user.email}</span>
-          <span className="type-small text-ink-muted">
-            {user.email} · {user.status}
-          </span>
+        <li
+          key={user.id}
+          className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+        >
+          <div className="flex flex-col gap-0.5">
+            <span className="type-label">{user.name ?? user.email}</span>
+            <span className="type-small text-ink-muted">
+              {user.email} · {user.status}
+            </span>
+          </div>
+          <ClientUserActions clientId={clientId} user={user} />
         </li>
       ))}
     </ul>

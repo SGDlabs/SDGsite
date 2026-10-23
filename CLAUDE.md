@@ -147,6 +147,8 @@ sombra acima valem para as outras áreas, não para a landing. Ao mexer nela, fi
   confie só no proxy, e não faça a checagem no layout (layout não re-renderiza na navegação).
 - `getCurrentUser()` (`src/lib/auth/current-user.ts`) lê cookies: chame dentro de `<Suspense>`.
   O admin passa em `requireRole("client")`.
+- Sessão sem perfil (acesso removido no admin) ainda passa no proxy até o token vencer: o
+  `requireRole` manda para `/auth/signout`, que encerra a sessão e leva ao `/login`.
 - Regras puras (papel, destino de cada papel, `safeNext` contra open redirect, decisão do proxy)
   ficam em `src/lib/auth/roles.ts` e `access.ts`, com testes.
 - Mensagens de login em `src/lib/auth/messages.ts`: nenhuma revela se o e-mail tem conta.
@@ -233,6 +235,9 @@ sombra acima valem para as outras áreas, não para a landing. Ao mexer nela, fi
   Nunca `supabase config push` (o `config.toml` tem valores só para desenvolvimento e CI) nem seed
   em produção.
 - Variável de ambiente nova: em `src/lib/env.ts`, `.env.example` e na tabela de `docs/deploy.md`.
+- Cabeçalhos de segurança em `next.config.ts` (todas as respostas). A CSP não restringe scripts
+  (os inline do Next pediriam nonce, o que deixaria toda página dinâmica); se entrar um iframe,
+  um `<form>` para outro domínio ou um plugin, ajuste a CSP. Node 24 (`engines`).
 
 ## Estrutura de pastas
 

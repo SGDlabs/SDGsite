@@ -144,6 +144,8 @@ export interface ClientUser {
   email: string;
   /** "Convite enviado", "Ativo desde…" */
   status: string;
+  /** accepted the invitation (confirmed the e-mail) */
+  accepted: boolean;
 }
 
 /**
@@ -170,7 +172,13 @@ export async function getClientUsers(clientId: string): Promise<ClientUser[]> {
         : user?.invited_at
           ? `Convite enviado em ${formatDay(user.invited_at)}`
           : "Sem acesso ainda";
-      return { id: profile.id, name: profile.full_name, email: user?.email ?? "", status };
+      return {
+        id: profile.id,
+        name: profile.full_name,
+        email: user?.email ?? "",
+        status,
+        accepted: Boolean(user?.email_confirmed_at),
+      };
     }),
   );
   return users;

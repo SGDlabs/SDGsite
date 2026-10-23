@@ -79,7 +79,8 @@ O perfil vira admin na hora (o trigger lê o `app_metadata`). Entre em `/login`:
 ## 4. Vercel
 
 1. **Add New > Project**, importe `SGDlabs/SDGsite`. A Vercel reconhece o Next.js e o pnpm (pela
-   versão em `packageManager`).
+   versão em `packageManager`). Deixe **Root Directory** em branco: o app fica na raiz do
+   repositório, e com uma subpasta (como `scripts`) todo deploy falha antes do build.
 2. Em **Settings > Environment Variables**:
 
 | Variável                        | Production                                 | Preview                                 |
