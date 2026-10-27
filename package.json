@@ -44,7 +44,7 @@
     "@commitlint/cli": "21.2.3",
     "@commitlint/config-conventional": "21.2.3",
     "@electric-sql/pglite": "0.5.8",
-    "@playwright/test": "1.63.0",
+    "@playwright/test": "1.64.0",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "^24.19.2",
     "@types/pg": "8.23.1",
